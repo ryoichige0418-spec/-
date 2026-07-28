@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>COMSOL 一様矩形断面流路｜Mapped＋Sweptメッシュ初期設定手順</title>
+<style>
+:root{
+  --bg:#f4f7fb; --card:#ffffff; --ink:#172033; --muted:#5d687d;
+  --line:#d9e1ec; --accent:#175cd3; --accent2:#0b7a75;
+  --warn:#a15c00; --warnbg:#fff7e8; --good:#176b3a; --goodbg:#edf9f1;
+  --bad:#a12b2b; --badbg:#fff0f0; --code:#eef3f9;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif;line-height:1.72;font-size:16px}
+header{background:linear-gradient(135deg,#102a56,#175cd3);color:white;padding:34px max(20px,calc((100% - 1080px)/2));}
+header h1{margin:0 0 10px;font-size:clamp(25px,4.8vw,40px);line-height:1.25;letter-spacing:.01em}
+header p{margin:0;max-width:900px;color:#e7efff;font-size:clamp(15px,2.8vw,18px)}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 16px 64px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin:16px 0;box-shadow:0 3px 12px rgba(25,45,80,.05)}
+h2{font-size:clamp(21px,3.8vw,28px);margin:4px 0 14px;line-height:1.35;border-left:5px solid var(--accent);padding-left:12px}
+h3{font-size:19px;margin:24px 0 10px;color:#183c78}
+h4{font-size:17px;margin:18px 0 8px}
+p{margin:8px 0 12px}
+strong{font-weight:750}
+.small{font-size:13px;color:var(--muted)}
+.note,.warning,.good{border-radius:12px;padding:14px 16px;margin:14px 0}
+.note{background:#eef5ff;border-left:5px solid var(--accent)}
+.warning{background:var(--warnbg);border-left:5px solid var(--warn)}
+.good{background:var(--goodbg);border-left:5px solid var(--good)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}.card{padding:17px}.wrap{padding-left:10px;padding-right:10px}}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:12px 0}
+table{border-collapse:collapse;width:100%;min-width:680px;background:white}
+th,td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+th{background:#edf3fb;color:#183c78;font-size:14px;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+code,.path{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--code);border-radius:6px;padding:2px 6px;font-size:.92em}
+.path{display:block;padding:10px 12px;overflow-x:auto;white-space:nowrap;margin:8px 0}
+.formula{overflow-x:auto;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0;font-family:"Times New Roman",serif;font-size:18px;white-space:nowrap}
+.var{font-family:"Times New Roman",serif;font-style:italic}
+.step{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start;margin:18px 0}
+.stepnum{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--accent);color:white;font-weight:800}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfdff}
+.kpi b{display:block;color:var(--accent);font-size:20px;margin-top:4px}
+svg{max-width:100%;height:auto;display:block;margin:10px auto}
+label{display:block;font-size:14px;font-weight:700;color:#34425a;margin-bottom:4px}
+input,select{width:100%;font:inherit;padding:10px 11px;border:1px solid #b8c4d5;border-radius:8px;background:white;color:var(--ink)}
+button{font:inherit;font-weight:750;background:var(--accent);color:white;border:0;border-radius:10px;padding:12px 18px;cursor:pointer;width:100%;margin-top:8px}
+button:active{transform:translateY(1px)}
+.results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.result{background:#f7faff;border:1px solid var(--line);border-radius:10px;padding:10px}
+.result span{display:block;color:var(--muted);font-size:12px}.result b{font-size:18px;color:#153c7b;word-break:break-word}
+@media(max-width:760px){.results{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:430px){.results{grid-template-columns:1fr}}
+.toc a{display:block;color:#174f9e;text-decoration:none;padding:5px 0;border-bottom:1px dashed #dbe3ed}.toc a:last-child{border-bottom:0}
+.badge{display:inline-block;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:750;background:#e9f1ff;color:#154e9c;margin-right:5px}
+.checklist{list-style:none;padding-left:0}.checklist li{padding:6px 0 6px 30px;position:relative}.checklist li:before{content:"□";position:absolute;left:4px;top:3px;font-size:21px;color:var(--accent)}
+footer{color:var(--muted);font-size:13px;padding-top:15px;border-top:1px solid var(--line);margin-top:24px}
+@media print{body{background:white}.card{box-shadow:none;break-inside:avoid}button,.no-print{display:none!important}a{color:black;text-decoration:none}header{background:white;color:black;border-bottom:2px solid #333}header p{color:#333}}
+</style>
+</head>
+<body>
+<header>
+  <h1>COMSOL 一様矩形断面流路<br>Mapped＋Sweptメッシュ初期設定手順</h1>
+  <p>層流域の共通メッシュを、断面全体のMappedメッシュと流路方向のSweptメッシュで構成するための実務用初期設定ガイド。外部ライブラリを使用せず、iPhone・オフライン表示に対応。</p>
+</header>
+<main class="wrap">
+
+<section class="card toc">
+<h2>この資料の使い方</h2>
+<a href="#quick">1. 推奨初期設定の要約</a>
+<a href="#vars">2. 変数の定義</a>
+<a href="#sequence">3. COMSOLメッシュシーケンス</a>
+<a href="#cross">4. 断面Mappedメッシュの設定</a>
+<a href="#sweep">5. 流路方向Sweptメッシュの設定</a>
+<a href="#calc">6. 初期設定計算ツール</a>
+<a href="#verify">7. 作成後の確認とAudit</a>
+</section>
+
+<section id="quick" class="card">
+<h2>1. 推奨初期設定の要約</h2>
+<div class="good"><strong>基本構成：</strong>入口または出口の矩形断面をMapped四角形メッシュで作成し、その断面メッシュを流路長さ方向へSweptして六面体メッシュを生成します。対向壁からBoundary Layersを別途挿入しません。</div>
+<div class="table-wrap"><table>
+<thead><tr><th>設定対象</th><th>標準初期値</th><th>設定意図</th></tr></thead>
+<tbody>
+<tr><td>メッシュシーケンス</td><td><strong>User-controlled mesh</strong></td><td>分割数と集中率を明示的に管理する</td></tr>
+<tr><td>狭い断面方向</td><td><strong>24要素、Exponential、Element ratio 6、Symmetric ON</strong></td><td>両壁面を細かく、中央を緩やかに粗くする</td></tr>
+<tr><td>広い断面方向</td><td><strong>12要素以上、Exponential、Element ratio 3、Symmetric ON</strong></td><td>側壁の速度勾配も解像しつつ過剰分割を避ける</td></tr>
+<tr><td>流路方向</td><td><strong>要素長 ≈ 0.5 <span class="var">D</span><sub>h</sub></strong></td><td>一様な流路・境界条件に対する量産用開始値</td></tr>
+<tr><td>Mapped面</td><td><strong>入口面をSource face</strong></td><td>入口断面の分割をそのまま下流へSweepする</td></tr>
+<tr><td>Swept要素</td><td><strong>Hexahedra</strong></td><td>Mapped四角形断面から六面体体積要素を作る</td></tr>
+<tr><td>Auditメッシュ</td><td><strong>断面1.2～1.3倍、軸方向1.25倍</strong></td><td>主要評価量の離散化誤差を確認する</td></tr>
+</tbody></table></div>
+<div class="warning"><strong>初期値であって最終値ではありません。</strong>共通メッシュとして固定する前に、総除熱量、圧力損失、出口温度、最大固体温度をAuditメッシュと比較してください。</div>
+</section>
+
+<section id="vars" class="card">
+<h2>2. 変数の定義</h2>
+<svg viewBox="0 0 820 330" role="img" aria-label="矩形流路の幅、高さ、長さとメッシュ方向">
+<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#175cd3"/></marker></defs>
+<polygon points="170,90 540,90 680,165 310,165" fill="#e9f2ff" stroke="#175cd3" stroke-width="2"/>
+<polygon points="170,90 310,165 310,270 170,195" fill="#dceaff" stroke="#175cd3" stroke-width="2"/>
+<polygon points="310,165 680,165 680,270 310,270" fill="#f5f9ff" stroke="#175cd3" stroke-width="2"/>
+<line x1="330" y1="300" x2="660" y2="300" stroke="#175cd3" stroke-width="2" marker-end="url(#arr)"/><text x="475" y="324" font-size="19" fill="#153c7b">流路長さ L・Sweep方向</text>
+<line x1="130" y1="92" x2="130" y2="194" stroke="#0b7a75" stroke-width="2" marker-end="url(#arr)"/><text x="50" y="150" font-size="19" fill="#0b665f">高さ H</text>
+<line x1="177" y1="62" x2="532" y2="62" stroke="#a15c00" stroke-width="2" marker-end="url(#arr)"/><text x="325" y="48" font-size="19" fill="#8a5100">幅 W</text>
+<text x="190" y="132" font-size="17" fill="#172033">Mapped source face</text>
+</svg>
+<div class="table-wrap"><table>
+<thead><tr><th>記号</th><th>意味</th><th>単位</th><th>初期設定での用途</th></tr></thead>
+<tbody>
+<tr><td><span class="var">W</span></td><td>矩形断面の幅。通常は長い側</td><td>m または mm</td><td>幅方向分割数 <span class="var">N</span><sub>W</sub> の計算</td></tr>
+<tr><td><span class="var">H</span></td><td>矩形断面の高さ。通常は狭い側</td><td>m または mm</td><td>壁面集中を強く設定する基準方向</td></tr>
+<tr><td><span class="var">L</span></td><td>流路長さ</td><td>m または mm</td><td>Swept方向分割数 <span class="var">N</span><sub>L</sub> の計算</td></tr>
+<tr><td><span class="var">D</span><sub>h</sub></td><td>水力直径</td><td>m または mm</td><td>流路方向の初期要素長を決める</td></tr>
+<tr><td><span class="var">N</span><sub>H</sub></td><td>高さ方向の総要素数</td><td>—</td><td>標準初期値24。偶数を使用</td></tr>
+<tr><td><span class="var">N</span><sub>W</sub></td><td>幅方向の総要素数</td><td>—</td><td>中央部の要素縦横比から決定</td></tr>
+<tr><td><span class="var">N</span><sub>L</sub></td><td>流路方向の要素層数</td><td>—</td><td>SweptのDistributionに入力</td></tr>
+<tr><td><span class="var">R</span><sub>H</sub></td><td>高さ方向のElement ratio</td><td>—</td><td>中央要素厚さ／壁面要素厚さ。標準6</td></tr>
+<tr><td><span class="var">R</span><sub>W</sub></td><td>幅方向のElement ratio</td><td>—</td><td>中央要素幅／側壁要素幅。標準3</td></tr>
+<tr><td><span class="var">q</span><sub>H</sub></td><td>高さ方向で隣接要素寸法が増える倍率</td><td>—</td><td>滑らかさの確認。標準1.15～1.20</td></tr>
+<tr><td><span class="var">h</span><sub>w,H</sub></td><td>高さ方向の壁面隣接要素厚さ</td><td>m または mm</td><td>壁面温度・熱流束勾配の解像指標</td></tr>
+<tr><td><span class="var">h</span><sub>c,H</sub></td><td>高さ方向の中央要素厚さ</td><td>m または mm</td><td>幅方向・軸方向要素寸法の基準</td></tr>
+<tr><td><span class="var">A</span><sub>cs</sub></td><td>断面中央部の許容要素縦横比</td><td>—</td><td>初期値1.5。上限目安2</td></tr>
+<tr><td><span class="var">α</span><sub>L</sub></td><td>流路方向要素長／水力直径</td><td>—</td><td>標準0.5。小さいほど軸方向が細かい</td></tr>
+</tbody></table></div>
+<div class="formula"><span class="var">D</span><sub>h</sub> = 2<span class="var">WH</span> / (<span class="var">W</span> + <span class="var">H</span>)</div>
+<p>矩形断面では、流路断面積を <span class="var">WH</span>、濡れ縁長さを 2(<span class="var">W</span>＋<span class="var">H</span>) とした水力直径です。</p>
+</section>
+
+<section id="sequence" class="card">
+<h2>3. COMSOLメッシュシーケンス</h2>
+<p>Model Builder上では、次の順序にします。</p>
+<div class="path">Component 1 → Mesh 1 → Mapped 1 → Distribution-H / Distribution-W → Swept 1 → Distribution-L</div>
+<div class="step"><div class="stepnum">1</div><div><strong>Mesh 1のSequence typeをUser-controlled meshへ変更</strong><br><span class="small">Physics-controlled meshのままでは、分割数を量産条件間で厳密に固定しにくいためです。</span></div></div>
+<div class="step"><div class="stepnum">2</div><div><strong>Mapped 1で入口または出口の矩形面を選択</strong><br><span class="small">Source faceとして使用する面です。入口面を推奨します。</span></div></div>
+<div class="step"><div class="stepnum">3</div><div><strong>Mapped 1の下に高さ方向・幅方向のDistributionを追加</strong><br><span class="small">各Distributionでは、互いに向かい合う2本のエッジを同時に選択します。</span></div></div>
+<div class="step"><div class="stepnum">4</div><div><strong>Swept 1で流体ドメインを選択</strong><br><span class="small">Mapped済み面をSource face、反対側をDestination faceとして流路方向へ展開します。</span></div></div>
+<div class="step"><div class="stepnum">5</div><div><strong>Swept 1の下にDistribution-Lを追加</strong><br><span class="small">流路方向の要素層数を直接指定します。</span></div></div>
+<div class="note"><strong>重要：</strong>Mappedメッシュでは論理的に向かい合う辺の要素数が一致している必要があります。高さ方向の2辺は同じ <span class="var">N</span><sub>H</sub>、幅方向の2辺は同じ <span class="var">N</span><sub>W</sub> にします。</div>
+</section>
+
+<section id="cross" class="card">
+<h2>4. 断面Mappedメッシュの初期設定</h2>
+
+<h3>4.1 Mapped 1本体</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>COMSOL項目</th><th>初期設定</th><th>説明</th></tr></thead>
+<tbody>
+<tr><td>Geometric entity level</td><td>Boundary</td><td>3DモデルのSource faceを対象にする</td></tr>
+<tr><td>Boundary Selection</td><td>入口矩形面</td><td>出口でも可能だが、流れ方向と対応しやすい入口を推奨</td></tr>
+<tr><td>Edge Groups</td><td>まずAutomatic</td><td>単純矩形なら通常は自動認識でよい。向かい合う辺が誤って組み合わされた場合のみ手動設定</td></tr>
+<tr><td>Sizeサブノード</td><td>原則不要</td><td>四辺をDistributionで制御するため。SizeはMappedではMaximum element sizeのみ参照され、同じ辺ではDistributionが優先される</td></tr>
+</tbody></table></div>
+
+<h3>4.2 高さ方向 Distribution-H</h3>
+<p>流路の狭い方向であり、通常は速度・温度勾配の解像を最優先します。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>COMSOL項目</th><th>標準初期値</th><th>調整範囲</th></tr></thead>
+<tbody>
+<tr><td>Edge Selection</td><td>高さ方向の対向2辺</td><td>同じ設定を2辺へ同時適用</td></tr>
+<tr><td>Distribution type</td><td><strong>Predefined</strong></td><td>—</td></tr>
+<tr><td>Number of elements</td><td><strong>24</strong></td><td>20～32、薄い熱境界層では32～40</td></tr>
+<tr><td>Growth rate</td><td><strong>Exponential</strong></td><td>通常はLinearより滑らか</td></tr>
+<tr><td>Element ratio</td><td><strong>6</strong></td><td>弱い集中3～5、強い集中8～12</td></tr>
+<tr><td>Symmetric distribution</td><td><strong>ON</strong></td><td>両壁面へ同じ密度で集中</td></tr>
+<tr><td>Reverse direction</td><td>OFF</td><td>対称分布では通常不要</td></tr>
+</tbody></table></div>
+<div class="formula"><span class="var">m</span><sub>H</sub> = <span class="var">N</span><sub>H</sub>/2</div>
+<div class="formula"><span class="var">q</span><sub>H</sub> = <span class="var">R</span><sub>H</sub><sup>1/(<span class="var">m</span><sub>H</sub>−1)</sup></div>
+<div class="formula"><span class="var">h</span><sub>w,H</sub> = (<span class="var">H</span>/2) × (<span class="var">q</span><sub>H</sub>−1) / (<span class="var">q</span><sub>H</sub><sup><span class="var">m</span><sub>H</sub></sup>−1)</div>
+<div class="formula"><span class="var">h</span><sub>c,H</sub> = <span class="var">R</span><sub>H</sub> × <span class="var">h</span><sub>w,H</sub></div>
+<p><span class="var">q</span><sub>H</sub>は隣接要素間の増加倍率です。初期設定では <strong>1.15～1.20</strong>を狙い、1.25を超える場合は、Element ratioを下げるか要素数を増やします。</p>
+
+<h3>4.3 幅方向 Distribution-W</h3>
+<p>側壁もno-slip壁であるため、初期状態では完全な等間隔よりも、弱い対称集中を推奨します。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>条件</th><th>Number of elements</th><th>Element ratio</th><th>推奨</th></tr></thead>
+<tbody>
+<tr><td>全4壁の熱流束・壁温が重要</td><td>中央要素縦横比から算定</td><td>4～6</td><td>高さ方向に近い壁面集中</td></tr>
+<tr><td>主に上下壁が熱交換面</td><td>12以上、中央要素縦横比から算定</td><td>2～3</td><td>標準設定</td></tr>
+<tr><td><span class="var">W/H</span>が大きく側壁影響が小さい</td><td>12以上</td><td>1～2</td><td>Auditで圧損・熱流量を確認して採用</td></tr>
+</tbody></table></div>
+<p>幅方向分割数は、断面中央の要素幅 <span class="var">h</span><sub>c,W</sub> が、次式を満たす最小の偶数にします。</p>
+<div class="formula"><span class="var">h</span><sub>c,W</sub> / <span class="var">h</span><sub>c,H</sub> ≤ <span class="var">A</span><sub>cs</sub></div>
+<p>標準初期値は <span class="var">A</span><sub>cs</sub>＝1.5、許容上限の目安は2です。下記計算ツールが <span class="var">N</span><sub>W</sub> を自動算定します。</p>
+
+<h3>4.4 Mapped面の目視確認</h3>
+<svg viewBox="0 0 780 300" role="img" aria-label="Mapped断面メッシュの理想的な壁面集中">
+<rect x="65" y="45" width="650" height="205" fill="#fbfdff" stroke="#183c78" stroke-width="3"/>
+<!-- vertical grid lines concentrated near sides -->
+<g stroke="#7896bf" stroke-width="1.2">
+<line x1="82" y1="45" x2="82" y2="250"/><line x1="104" y1="45" x2="104" y2="250"/><line x1="135" y1="45" x2="135" y2="250"/><line x1="180" y1="45" x2="180" y2="250"/><line x1="245" y1="45" x2="245" y2="250"/><line x1="325" y1="45" x2="325" y2="250"/><line x1="390" y1="45" x2="390" y2="250"/><line x1="455" y1="45" x2="455" y2="250"/><line x1="535" y1="45" x2="535" y2="250"/><line x1="600" y1="45" x2="600" y2="250"/><line x1="645" y1="45" x2="645" y2="250"/><line x1="676" y1="45" x2="676" y2="250"/><line x1="698" y1="45" x2="698" y2="250"/>
+<!-- horizontal grid -->
+<line x1="65" y1="58" x2="715" y2="58"/><line x1="65" y1="75" x2="715" y2="75"/><line x1="65" y1="98" x2="715" y2="98"/><line x1="65" y1="130" x2="715" y2="130"/><line x1="65" y1="168" x2="715" y2="168"/><line x1="65" y1="200" x2="715" y2="200"/><line x1="65" y1="223" x2="715" y2="223"/><line x1="65" y1="240" x2="715" y2="240"/>
+</g>
+<text x="240" y="285" font-size="18" fill="#153c7b">両側壁・上下壁へ滑らかに要素を集中</text>
+</svg>
+<ul class="checklist">
+<li>両壁面の第一要素厚さが左右・上下で対称になっている</li>
+<li>中央付近に極端に薄い要素や急激な寸法変化がない</li>
+<li>向かい合う辺の要素数が一致している</li>
+<li>Element ratioを上げすぎず、隣接増加率が滑らかである</li>
+</ul>
+</section>
+
+<section id="sweep" class="card">
+<h2>5. 流路方向Sweptメッシュの初期設定</h2>
+<h3>5.1 Swept 1本体</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>COMSOL項目</th><th>初期設定</th><th>説明</th></tr></thead>
+<tbody>
+<tr><td>Domain Selection</td><td>矩形流路の流体ドメイン</td><td>一様断面部のみを選択</td></tr>
+<tr><td>Source Faces</td><td>Mapped済み入口面</td><td>自動認識されない場合のみ手動指定</td></tr>
+<tr><td>Destination Faces</td><td>出口面</td><td>Source faceと一対一に対応</td></tr>
+<tr><td>Elements</td><td>Hexahedra</td><td>四角形Source meshを六面体としてSweep</td></tr>
+<tr><td>Remesh source faces</td><td>OFF相当を維持</td><td>事前に作成したMapped面を保持する。表示項目はモデル条件で異なる</td></tr>
+</tbody></table></div>
+
+<h3>5.2 Distribution-L</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>COMSOL項目</th><th>標準初期値</th><th>説明</th></tr></thead>
+<tbody>
+<tr><td>Geometric entity level</td><td>Domain</td><td>Swept方向の分布はドメインに設定</td></tr>
+<tr><td>Distribution type</td><td>Fixed number of elements</td><td>量産解析で同じ軸方向層数を再現</td></tr>
+<tr><td>Number of elements</td><td><span class="var">N</span><sub>L</sub>＝ceil[<span class="var">L</span>/(0.5<span class="var">D</span><sub>h</sub>)]</td><td>一様形状・一様境界条件の開始値</td></tr>
+<tr><td>Equidistant</td><td>ON</td><td>一様流路ではまず等間隔を使用</td></tr>
+</tbody></table></div>
+<div class="formula">Δ<span class="var">s</span><sub>target</sub> = <span class="var">α</span><sub>L</sub> × <span class="var">D</span><sub>h</sub></div>
+<div class="formula"><span class="var">N</span><sub>L</sub> = ceil(<span class="var">L</span> / Δ<span class="var">s</span><sub>target</sub>)</div>
+<p>標準初期値は <span class="var">α</span><sub>L</sub>＝0.5です。入口近傍、熱源端部、境界条件の切替位置で軸方向勾配が大きい場合は、流路をPartitionし、その区間だけ <span class="var">α</span><sub>L</sub>＝0.1～0.25へ下げます。</p>
+<div class="note"><strong>長い流路で全長を過剰に細かくしない：</strong>入口発達部だけを細分化したい場合、1本の強い指数Distributionで全長をつなぐより、入口から5～10<span class="var">D</span><sub>h</sub>程度でドメインを分割して、区間ごとに固定要素長を設定する方が再現性と管理性に優れます。</div>
+</section>
+
+<section id="calc" class="card">
+<h2>6. 初期設定計算ツール</h2>
+<p>流路寸法と集中率を入力すると、Mapped＋Sweptの初期値を計算します。計算は端末内だけで行われ、通信は発生しません。</p>
+<div class="grid3">
+<div><label for="W">幅 W [mm]</label><input id="W" type="number" value="12" min="0.001" step="0.1"></div>
+<div><label for="H">高さ H [mm]</label><input id="H" type="number" value="7" min="0.001" step="0.1"></div>
+<div><label for="L">長さ L [mm]</label><input id="L" type="number" value="2000" min="0.001" step="1"></div>
+<div><label for="NH">高さ方向要素数 NH（偶数）</label><input id="NH" type="number" value="24" min="8" step="2"></div>
+<div><label for="RH">高さ方向Element ratio RH</label><input id="RH" type="number" value="6" min="1" step="0.5"></div>
+<div><label for="RW">幅方向Element ratio RW</label><input id="RW" type="number" value="3" min="1" step="0.5"></div>
+<div><label for="Acs">中央部許容縦横比 Acs</label><input id="Acs" type="number" value="1.5" min="0.5" step="0.1"></div>
+<div><label for="alpha">軸方向係数 αL（Δs/Dh）</label><input id="alpha" type="number" value="0.5" min="0.02" step="0.05"></div>
+<div><label for="minNW">幅方向最小要素数</label><input id="minNW" type="number" value="12" min="4" step="2"></div>
+</div>
+<button onclick="calculateMesh()">初期設定を計算</button>
+<div id="messages" class="warning" style="display:none"></div>
+<div class="results" id="results">
+<div class="result"><span>水力直径 Dh</span><b id="oDh">—</b></div>
+<div class="result"><span>高さ方向隣接増加率 qH</span><b id="oqH">—</b></div>
+<div class="result"><span>高さ壁面要素 hw,H</span><b id="ohwH">—</b></div>
+<div class="result"><span>高さ中央要素 hc,H</span><b id="ohcH">—</b></div>
+<div class="result"><span>推奨幅方向要素数 NW</span><b id="oNW">—</b></div>
+<div class="result"><span>幅方向隣接増加率 qW</span><b id="oqW">—</b></div>
+<div class="result"><span>幅壁面要素 hw,W</span><b id="ohwW">—</b></div>
+<div class="result"><span>幅中央要素 hc,W</span><b id="ohcW">—</b></div>
+<div class="result"><span>中央部縦横比</span><b id="oAR">—</b></div>
+<div class="result"><span>流路方向要素数 NL</span><b id="oNL">—</b></div>
+<div class="result"><span>実際の軸方向要素長 Δs</span><b id="ods">—</b></div>
+<div class="result"><span>概算六面体要素数</span><b id="oElem">—</b></div>
+<div class="result"><span>Audit高さ方向 NA,H</span><b id="oNHa">—</b></div>
+<div class="result"><span>Audit幅方向 NA,W</span><b id="oNWa">—</b></div>
+<div class="result"><span>Audit軸方向 NA,L</span><b id="oNLa">—</b></div>
+</div>
+<div class="small">計算式は、偶数分割・対称指数分布を仮定しています。COMSOL内部の頂点配置と完全一致する保証値ではなく、設定値の妥当性を事前評価するための近似です。</div>
+</section>
+
+<section id="verify" class="card">
+<h2>7. 作成後の確認とAudit</h2>
+<h3>7.1 メッシュ生成直後</h3>
+<ul class="checklist">
+<li>全流体領域が六面体要素で構成されている</li>
+<li>入口面と出口面の断面トポロジーが一致している</li>
+<li>壁面から中央まで要素寸法が滑らかに増加している</li>
+<li>隣接増加率 <span class="var">q</span> が概ね1.25以下である</li>
+<li>流路中央の断面要素縦横比が2以下を目安に収まっている</li>
+<li>メッシュ生成時にWarningまたはInformationノードが追加されていない</li>
+</ul>
+<h3>7.2 ProductionとAuditの初期差</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>方向</th><th>Production</th><th>Audit初期設定</th></tr></thead>
+<tbody>
+<tr><td>高さ方向</td><td><span class="var">N</span><sub>H</sub></td><td>次の偶数へ丸めた 1.3<span class="var">N</span><sub>H</sub></td></tr>
+<tr><td>幅方向</td><td><span class="var">N</span><sub>W</sub></td><td>次の偶数へ丸めた 1.2<span class="var">N</span><sub>W</sub></td></tr>
+<tr><td>流路方向</td><td><span class="var">N</span><sub>L</sub></td><td>切り上げた 1.25<span class="var">N</span><sub>L</sub></td></tr>
+<tr><td>Element ratio</td><td><span class="var">R</span><sub>H</sub>, <span class="var">R</span><sub>W</sub></td><td>原則同じ値を維持</td></tr>
+</tbody></table></div>
+<h3>7.3 共通メッシュ固定の合格目安</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>評価量</th><th>Production－Audit差の初期目安</th></tr></thead>
+<tbody>
+<tr><td>総除熱量</td><td>1%以下</td></tr>
+<tr><td>圧力損失</td><td>1～2%以下</td></tr>
+<tr><td>出口温度</td><td>0.2 K以下</td></tr>
+<tr><td>最大固体温度</td><td>0.2～0.5 K以下</td></tr>
+<tr><td>温度均一性指標</td><td>2%以下</td></tr>
+</tbody></table></div>
+<div class="warning"><strong>不合格時の修正方向：</strong>除熱量・壁温が未収束なら断面壁面側を優先して細分化します。圧力損失が未収束なら断面分割に加えて入口部・流路方向も確認します。最大固体温度だけが未収束なら、流体メッシュではなく固体側の熱源近傍・流体界面近傍メッシュが原因の場合があります。</div>
+</section>
+
+<section class="card">
+<h2>8. COMSOL入力用の初期値テンプレート</h2>
+<div class="path">Mapped 1 / Distribution-H：Predefined, Number = 24, Exponential, Element ratio = 6, Symmetric = ON</div>
+<div class="path">Mapped 1 / Distribution-W：Predefined, Number = 計算値 NW, Exponential, Element ratio = 3, Symmetric = ON</div>
+<div class="path">Swept 1 / Distribution-L：Fixed number of elements, Number = ceil(L/(0.5*Dh)), Equidistant = ON</div>
+<div class="path">Parameters：Dh = 2*W*H/(W+H)</div>
+<p>モデルパラメータとして、例えば <code>W_ch</code>、<code>H_ch</code>、<code>L_ch</code>、<code>Dh</code>、<code>nH_mesh</code>、<code>nW_mesh</code>、<code>nL_mesh</code>を登録すると、メッシュ設定の管理とバージョン比較が容易になります。</p>
+</section>
+
+<section class="card">
+<h2>参考資料</h2>
+<p>COMSOL Multiphysics 6.4 公式ドキュメントにおけるMapped、Distribution、Sweptの仕様を基礎としています。数値の推奨範囲は、本資料における層流熱流体解析用の実務的な開始値です。</p>
+<ol>
+<li><a href="https://doc.comsol.com/6.4/doc/com.comsol.help.comsol/comsol_ref_mesh.24.72.html">COMSOL 6.4 — Mapped</a></li>
+<li><a href="https://doc.comsol.com/6.4/doc/com.comsol.help.comsol/comsol_ref_mesh.24.58.html">COMSOL 6.4 — Distribution</a></li>
+<li><a href="https://doc.comsol.com/6.4/doc/com.comsol.help.comsol/comsol_ref_mesh.24.87.html">COMSOL 6.4 — Swept</a></li>
+<li><a href="https://www.comsol.com/support/learning-center/course/using-swept-meshes-for-model-geometries-152/terminology-and-requirements-for-swept-meshing-51351">COMSOL Learning Center — Terminology and Requirements for Swept Meshing</a></li>
+</ol>
+</section>
+
+<footer>
+本資料の初期値は、一様矩形断面・層流・形状固定の共通メッシュ設計を対象とします。流路分岐、急拡大縮小、強い曲率、相変化、乱流・遷移流には別途メッシュ方針が必要です。
+</footer>
+</main>
+<script>
+function evenCeil(x){let n=Math.ceil(x); if(n%2!==0)n++; return n;}
+function halfDistribution(size,N,R){
+  N=evenCeil(Math.max(4,N)); R=Math.max(1,R); const m=N/2;
+  if(Math.abs(R-1)<1e-10){return {N:N,m:m,q:1,wall:size/N,center:size/N};}
+  const q=Math.pow(R,1/(m-1));
+  const wall=(size/2)*(q-1)/(Math.pow(q,m)-1);
+  return {N:N,m:m,q:q,wall:wall,center:R*wall};
+}
+function fmt(x,d=4){
+  if(!isFinite(x))return "—";
+  if(Math.abs(x)>=1000000)return x.toLocaleString('ja-JP',{maximumFractionDigits:0});
+  if(Math.abs(x)>=100)return x.toLocaleString('ja-JP',{maximumFractionDigits:1});
+  if(Math.abs(x)>=1)return x.toLocaleString('ja-JP',{maximumFractionDigits:d});
+  return x.toLocaleString('ja-JP',{maximumSignificantDigits:4});
+}
+function calculateMesh(){
+  let W=parseFloat(document.getElementById('W').value);
+  let H=parseFloat(document.getElementById('H').value);
+  let L=parseFloat(document.getElementById('L').value);
+  let NH=evenCeil(parseFloat(document.getElementById('NH').value));
+  let RH=parseFloat(document.getElementById('RH').value);
+  let RW=parseFloat(document.getElementById('RW').value);
+  let Acs=parseFloat(document.getElementById('Acs').value);
+  let alpha=parseFloat(document.getElementById('alpha').value);
+  let minNW=evenCeil(parseFloat(document.getElementById('minNW').value));
+  const msg=[];
+  if([W,H,L,NH,RH,RW,Acs,alpha,minNW].some(v=>!isFinite(v)||v<=0)){document.getElementById('messages').style.display='block';document.getElementById('messages').textContent='すべての入力欄に正の数値を入力してください。';return;}
+  if(H>W){msg.push('HがWより大きいため、この計算では入力値を維持します。通常は狭い側をHとして入力すると設定意図が明確になります。');}
+  const Dh=2*W*H/(W+H);
+  const dH=halfDistribution(H,NH,RH);
+  let NW=Math.max(4,minNW); NW=evenCeil(NW);
+  let dW=halfDistribution(W,NW,RW);
+  while(dW.center/dH.center>Acs && NW<1000){NW+=2; dW=halfDistribution(W,NW,RW);}
+  const NL=Math.max(1,Math.ceil(L/(alpha*Dh)));
+  const ds=L/NL;
+  const elems=NH*NW*NL;
+  const NHa=evenCeil(1.3*NH), NWa=evenCeil(1.2*NW), NLa=Math.ceil(1.25*NL);
+  if(dH.q>1.25)msg.push('高さ方向の隣接増加率qHが1.25を超えています。NHを増やすかRHを下げてください。');
+  if(dW.q>1.25)msg.push('幅方向の隣接増加率qWが1.25を超えています。NWを増やすかRWを下げてください。');
+  if(elems>3000000)msg.push('概算要素数が300万を超えています。軸方向係数αL、幅方向許容縦横比、局所Partitionの採用を再検討してください。');
+  const mbox=document.getElementById('messages');
+  if(msg.length){mbox.style.display='block';mbox.innerHTML=msg.map(s=>'• '+s).join('<br>');}else{mbox.style.display='none';}
+  document.getElementById('oDh').textContent=fmt(Dh)+' mm';
+  document.getElementById('oqH').textContent=fmt(dH.q,3);
+  document.getElementById('ohwH').textContent=fmt(dH.wall)+' mm';
+  document.getElementById('ohcH').textContent=fmt(dH.center)+' mm';
+  document.getElementById('oNW').textContent=NW;
+  document.getElementById('oqW').textContent=fmt(dW.q,3);
+  document.getElementById('ohwW').textContent=fmt(dW.wall)+' mm';
+  document.getElementById('ohcW').textContent=fmt(dW.center)+' mm';
+  document.getElementById('oAR').textContent=fmt(dW.center/dH.center,3);
+  document.getElementById('oNL').textContent=NL;
+  document.getElementById('ods').textContent=fmt(ds)+' mm';
+  document.getElementById('oElem').textContent=elems.toLocaleString('ja-JP');
+  document.getElementById('oNHa').textContent=NHa;
+  document.getElementById('oNWa').textContent=NWa;
+  document.getElementById('oNLa').textContent=NLa;
+}
+window.addEventListener('DOMContentLoaded',calculateMesh);
+</script>
+</body>
+</html>
