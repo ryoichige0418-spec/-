@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>COMSOL 層流域の共通メッシュ最適化｜実務スリム版</title>
+<meta name="description" content="固定形状の3次元共役熱伝達解析で、層流条件群に一つの共通メッシュを適用するための実務手順。">
+<script>
+window.MathJax = {
+  tex: {inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']]},
+  chtml: {scale: 0.96}
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+:root{
+  --bg:#f3f6fa; --paper:#fff; --ink:#172033; --muted:#59697d; --line:#d9e2ed;
+  --navy:#102f54; --blue:#175cd3; --bluebg:#eaf2ff; --green:#067647; --greenbg:#ecfdf3;
+  --amber:#a15c00; --amberbg:#fff8e8; --red:#b42318; --redbg:#fef3f2; --code:#11243e;
+  --shadow:0 8px 28px rgba(16,35,61,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;line-height:1.75;font-size:16px}
+a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}
+.layout{display:grid;grid-template-columns:280px minmax(0,1fr);max-width:1560px;margin:0 auto;min-height:100vh}
+aside{position:sticky;top:0;height:100vh;overflow:auto;background:#10243e;color:#dce8f6;padding:22px 16px;border-right:1px solid #193b61}
+.brand{padding:4px 8px 17px;border-bottom:1px solid rgba(255,255,255,.13);margin-bottom:13px}
+.brand .eyebrow{font-size:11px;letter-spacing:.15em;font-weight:800;color:#9fc5f2}
+.brand h1{font-size:18px;line-height:1.45;color:#fff;margin:7px 0 5px}.brand p{font-size:12px;color:#acbed3;margin:0}
+nav a{display:block;padding:7px 9px;margin:1px 0;border-radius:7px;color:#c9d8e9;font-size:13px;line-height:1.4}
+nav a:hover,nav a.active{background:#1b416c;color:#fff;text-decoration:none}
+.side-actions{display:flex;gap:7px;padding:15px 8px}.side-actions button{border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;padding:7px 9px;border-radius:7px;cursor:pointer;font-size:12px}
+main{min-width:0;padding:32px 42px 76px}article{max-width:1120px;margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow);overflow:hidden}
+.hero{padding:55px 62px 48px;color:#fff;background:linear-gradient(135deg,#102f54 0%,#175cd3 67%,#4e8fe8 100%);position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:390px;height:390px;border:78px solid rgba(255,255,255,.07);border-radius:50%;right:-145px;top:-175px}
+.hero .kicker{font-size:12px;letter-spacing:.16em;font-weight:800;color:#dceaff}.hero h1{font-size:34px;line-height:1.35;margin:10px 0 15px;max-width:850px}.hero .lead{font-size:18px;max-width:900px;margin:0 0 20px;color:#edf5ff}
+.meta{display:flex;flex-wrap:wrap;gap:9px 15px;font-size:12.5px;color:#dceaff}.meta span{border:1px solid rgba(255,255,255,.28);padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.06)}
+.content{padding:44px 62px 66px}section{scroll-margin-top:22px;margin-bottom:52px}h2{font-size:26px;color:var(--navy);line-height:1.45;margin:0 0 19px;padding-bottom:9px;border-bottom:2px solid #dde9f8}h3{font-size:20px;color:#173d68;margin:29px 0 12px}h4{font-size:16.5px;color:#264f79;margin:22px 0 7px}p{margin:9px 0 15px}ul,ol{padding-left:1.45em;margin:9px 0 17px}li{margin:5px 0}strong{color:#143456}.small{font-size:13px;color:var(--muted)}
+.callout{border-left:5px solid var(--blue);background:var(--bluebg);padding:16px 19px;border-radius:8px;margin:17px 0}.callout.green{border-color:var(--green);background:var(--greenbg)}.callout.amber{border-color:var(--amber);background:var(--amberbg)}.callout.red{border-color:var(--red);background:var(--redbg)}.callout .title{font-weight:800;color:#163a65;margin-bottom:5px}
+.card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:18px 0}.card{border:1px solid var(--line);border-radius:11px;padding:16px;background:#fff}.card b{display:block;color:var(--blue);font-size:13px;margin-bottom:5px}.card p{font-size:14px;color:#4c5e73;margin:0}
+.flow6{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.flow6 div{border:1px solid var(--line);border-radius:10px;padding:13px;background:#fbfdff}.flow6 b{display:block;color:var(--blue);font-size:13px}.flow6 span{display:block;font-size:13px;color:#536579;margin-top:4px}
+.step{display:grid;grid-template-columns:46px minmax(0,1fr);gap:13px;margin:21px 0}.step-no{width:40px;height:40px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 4px 10px rgba(23,92,211,.24)}.step-body{border:1px solid var(--line);border-radius:12px;padding:17px 19px;background:#fff}.step-body h3{margin:0 0 9px;font-size:19px}
+.equation{background:#f8fafc;border:1px solid #dfe7f0;border-radius:9px;padding:15px 18px;margin:14px 0;overflow-x:auto}.varline{font-size:13px;color:#4f6175;border-top:1px dashed #cbd6e2;padding-top:8px;margin-top:9px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;margin:15px 0 22px}table{width:100%;border-collapse:collapse;font-size:14px;background:#fff}th{background:#edf3fa;color:#163a65;text-align:left;font-weight:760;padding:9px 11px;border-bottom:1px solid #cad7e6;white-space:nowrap}td{padding:9px 11px;border-bottom:1px solid #e4ebf2;vertical-align:top}tr:last-child td{border-bottom:none}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;background:#eef2f7;color:#153658;padding:2px 5px;border-radius:4px;font-size:.92em}pre{background:var(--code);color:#e7eef7;padding:17px 19px;border-radius:9px;overflow:auto;line-height:1.6;font-size:13px;margin:14px 0 20px}pre code{background:transparent;color:inherit;padding:0;white-space:pre}
+.checklist{list-style:none;padding:0;margin:12px 0}.checklist li{position:relative;padding:7px 9px 7px 31px;border-bottom:1px dashed #dce4ed}.checklist li:before{content:"□";position:absolute;left:7px;color:var(--green);font-weight:900}.must{display:inline-block;padding:2px 7px;border-radius:999px;background:#fee4e2;color:#912018;font-size:11px;font-weight:800;margin-right:5px}.rec{display:inline-block;padding:2px 7px;border-radius:999px;background:#dbeafe;color:#174ea6;font-size:11px;font-weight:800;margin-right:5px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.footer{border-top:1px solid var(--line);padding-top:20px;color:var(--muted);font-size:12.5px}
+@media(max-width:1050px){.layout{grid-template-columns:1fr}aside{display:none}main{padding:18px}.hero{padding:44px 31px}.content{padding:37px 30px}.card-grid,.flow6{grid-template-columns:1fr}.two-col{grid-template-columns:1fr}}
+@media(max-width:650px){main{padding:0}.hero{padding:36px 20px}.hero h1{font-size:26px}.content{padding:28px 18px}.step{grid-template-columns:1fr}.step-no{width:35px;height:35px}.table-wrap{margin-left:-7px;margin-right:-7px}}
+@media print{body{background:#fff}.layout{display:block}aside{display:none}main{padding:0}article{box-shadow:none;border:none;border-radius:0}.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}.content{padding:30px}.step-body,.callout,.table-wrap,.card{break-inside:avoid}a{color:#000;text-decoration:none}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside>
+  <div class="brand">
+    <div class="eyebrow">COMSOL CFD / CHT</div>
+    <h1>層流域の共通メッシュ最適化</h1>
+    <p>実務スリム版</p>
+  </div>
+  <nav id="toc">
+    <a href="#s0">0. 使い方と終了条件</a>
+    <a href="#s1">1. 必要な入力と評価量</a>
+    <a href="#s2">2. 事前準備</a>
+    <a href="#s3">3. 6工程の実施手順</a>
+    <a href="#s4">4. COMSOL設定・評価式</a>
+    <a href="#s5">5. 合否判定と修正</a>
+    <a href="#s6">6. 使用変数一覧</a>
+    <a href="#s7">7. 完了チェックリスト</a>
+  </nav>
+  <div class="side-actions"><button onclick="window.print()">印刷 / PDF</button><button onclick="document.documentElement.scrollTop=0">先頭へ</button></div>
+</aside>
+<main>
+<article>
+<header class="hero">
+  <div class="kicker">PRACTICAL SLIM PROCEDURE</div>
+  <h1>COMSOL 3次元熱流体解析<br>層流域の共通メッシュ最適化</h1>
+  <p class="lead">固定形状の全層流条件に対して、一つの量産用メッシュを構築・検証・固定するための必要最小限の実務手順。</p>
+  <div class="meta"><span>3D共役熱伝達</span><span>固定形状</span><span>大量パラメトリックスイープ</span><span>ROM学習データ生成</span><span>2026-07-28</span></div>
+</header>
+<div class="content">
+
+<section id="s0">
+<h2>0. この資料の使い方と終了条件</h2>
+<div class="callout green"><div class="title">最終的に作るもの</div>
+<strong>量産用共通メッシュ <code>Mesh-L-Production</code></strong> と、比較用の <strong>監査メッシュ <code>Mesh-L-Audit</code></strong> を作成します。全アンカー条件で主要評価量の差が許容値以内なら、量産メッシュを固定し、以後の層流Sweepでは再メッシュしません。
+</div>
+<div class="flow6">
+  <div><b>1. 条件範囲</b><span>層流集合とアンカーを確定</span></div>
+  <div><b>2. パイロット</b><span>境界層の最小厚さを抽出</span></div>
+  <div><b>3. 寸法算定</b><span>第一層・層数・局所寸法を決定</span></div>
+  <div><b>4. 構築</b><span>Productionメッシュを作成</span></div>
+  <div><b>5. 監査</b><span>Auditメッシュとの差を確認</span></div>
+  <div><b>6. 固定</b><span>合格後、一度だけBuildして量産</span></div>
+</div>
+<div class="two-col">
+<div class="callout"><div class="title">適用する</div>
+単相・Newton流体、層流、形状固定、同一の流体／固体領域、主に強制対流を扱う3次元共役熱伝達解析。</div>
+<div class="callout amber"><div class="title">この手順から外す</div>
+遷移・乱流、相変化、非Newton流体、形状変更、流路閉塞、強い自然対流による流向反転が生じる条件。</div>
+</div>
+<p><span class="must">禁止</span>各解析条件でPhysics-Controlled Meshを自動生成し直すこと、または「Fine／Finer」という名称だけで精度を判断すること。</p>
+</section>
+
+<section id="s1">
+<h2>1. 必要な入力と評価量</h2>
+<h3>1.1 最初に準備する入力</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>区分</th><th>必要な情報</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td>形状</td><td>流路断面積 \(A_c\)、濡れ縁長さ \(P_w\)、最小隙間 \(g_{\min}\)、曲率半径 \(R_c\)</td><td>水力直径、境界層干渉、曲がり部寸法</td></tr>
+<tr><td>運転条件</td><td>質量流量 \(\dot m\)、入口温度 \(T_{\mathrm{in}}\)、熱負荷 \(Q_{\mathrm{load}}\)</td><td>条件包絡とアンカー選定</td></tr>
+<tr><td>物性</td><td>密度 \(\rho(T)\)、粘度 \(\mu(T)\)、比熱 \(c_p(T)\)、熱伝導率 \(k_f(T)\)</td><td>温度依存物性を含む無次元数の評価</td></tr>
+<tr><td>精度要求</td><td>除熱量、圧力損失、最高温度などの許容メッシュ差</td><td>共通メッシュの終了条件</td></tr>
+</tbody></table></div>
+
+<h3>1.2 条件分類に使う式</h3>
+<div class="equation">
+\[
+D_h=\frac{4A_c}{P_w},\qquad
+U_b=\frac{\dot m}{\rho A_c},\qquad
+Re_b=\frac{\rho U_bD_h}{\mu}=\frac{\dot mD_h}{\mu A_c}
+\]
+\[
+Pr=\frac{\mu c_p}{k_f},\qquad Pe=Re_bPr,
+\qquad De=Re_b\sqrt{\frac{D_h}{2R_c}}
+\]
+<div class="varline"><b>変数：</b> \(D_h\)：水力直径 [m]、\(A_c\)：流路断面積 [m²]、\(P_w\)：濡れ縁長さ [m]、\(U_b\)：断面平均速度 [m/s]、\(\dot m\)：質量流量 [kg/s]、\(\rho\)：密度 [kg/m³]、\(\mu\)：動的粘度 [Pa·s]、\(Re_b\)：バルクReynolds数、\(Pr\)：Prandtl数、\(c_p\)：定圧比熱 [J/(kg·K)]、\(k_f\)：流体熱伝導率 [W/(m·K)]、\(Pe\)：Péclet数、\(De\)：Dean数、\(R_c\)：曲率半径 [m]。</div>
+</div>
+<p>温度で粘度が変わる場合、各ケースで想定される温度範囲の最小粘度 \(\mu_{\min}\) を用いて、Reynolds数上限を求めます。</p>
+<div class="equation">
+\[
+Re^{\mathrm{upper}}=\frac{\dot mD_h}{A_c\mu_{\min}}
+\]
+<div class="varline"><b>変数：</b> \(Re^{\mathrm{upper}}\)：その条件で取り得るReynolds数の上限、\(\mu_{\min}\)：想定温度範囲内の最小動的粘度 [Pa·s]。</div>
+</div>
+<div class="callout amber"><div class="title">層流集合への登録条件</div>
+\(Re^{\mathrm{upper}}\) が、対象流路で別途定めた層流安全上限 \(Re_{L,\mathrm{guard}}\) 以下である条件だけを登録します。安全上限を未検証の複雑流路は「Review」とし、層流量産データへ自動登録しません。</div>
+
+<h3>1.3 合否判定に使う評価量</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>評価量</th><th>記号</th><th>初期許容値</th></tr></thead>
+<tbody>
+<tr><td>流体への正味熱移動量</td><td>\(\dot Q_f\)</td><td>Auditとの差 1%以下</td></tr>
+<tr><td>入口―出口圧力損失</td><td>\(\Delta p\)</td><td>1～2%以下</td></tr>
+<tr><td>固体最高温度</td><td>\(T_{\max}\)</td><td>絶対差 0.2～0.5 K以下</td></tr>
+<tr><td>熱交換面平均温度</td><td>\(\overline T_w\)</td><td>絶対差 0.2 K以下</td></tr>
+<tr><td>熱交換面温度標準偏差</td><td>\(\sigma_{T,w}\)</td><td>相対差 2%以下</td></tr>
+<tr><td>出口バルク温度</td><td>\(T_{b,\mathrm{out}}\)</td><td>絶対差 0.2 K以下</td></tr>
+</tbody></table></div>
+<p class="small">上記は開始値です。装置の設計余裕、実験不確かさ、ROMの目標誤差に合わせて変更してください。</p>
+</section>
+
+<section id="s2">
+<h2>2. COMSOLモデルの事前準備</h2>
+<h3>2.1 必須Selection</h3>
+<p><code>Component 1 &gt; Definitions &gt; Selections</code> に、境界番号ではなく名前付きSelectionを作成します。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Selection名</th><th>対象</th><th>必須用途</th></tr></thead>
+<tbody>
+<tr><td><code>sel_flu</code></td><td>流体領域</td><td>Laminar Flow、流体メッシュ</td></tr>
+<tr><td><code>sel_in</code></td><td>入口面</td><td>質量流量、バルク温度、圧力</td></tr>
+<tr><td><code>sel_out</code></td><td>出口面</td><td>質量流量、バルク温度、圧力</td></tr>
+<tr><td><code>sel_wall_ht</code></td><td>主要固体―流体熱交換面</td><td>境界層、壁温、熱量</td></tr>
+<tr><td><code>sel_bend</code></td><td>曲がり・急変部</td><td>局所細分化</td></tr>
+<tr><td><code>sel_hotspot</code></td><td>熱源近傍または最高温度候補</td><td>固体最高温度、固体側細分化</td></tr>
+</tbody></table></div>
+
+<h3>2.2 必須Coupling Operator</h3>
+<p><code>Component 1 &gt; Definitions &gt; Nonlocal Couplings</code> に作成します。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>演算子</th><th>Selection</th><th>用途</th></tr></thead>
+<tbody>
+<tr><td><code>int_in</code></td><td><code>sel_in</code></td><td>入口積分</td></tr>
+<tr><td><code>int_out</code></td><td><code>sel_out</code></td><td>出口積分</td></tr>
+<tr><td><code>int_wall</code></td><td><code>sel_wall_ht</code></td><td>熱交換面積分</td></tr>
+<tr><td><code>ave_wall</code></td><td><code>sel_wall_ht</code></td><td>熱交換面平均</td></tr>
+<tr><td><code>max_hot</code></td><td><code>sel_hotspot</code></td><td>固体最高温度</td></tr>
+</tbody></table></div>
+
+<h3>2.3 形状分割の最低限ルール</h3>
+<ul>
+<li>長い一定断面部は、可能な限り <strong>Mapped断面＋Swept</strong> にする。</li>
+<li>入口、曲がり、出口、ヘッダを必要な範囲だけPartitionする。</li>
+<li>Sweepできない領域だけ、Boundary Layers＋Free Tetrahedralを使用する。</li>
+<li>固体―流体界面は、原則として共有境界を持つ整合メッシュにする。</li>
+</ul>
+</section>
+
+<section id="s3">
+<h2>3. 共通メッシュ最適化の6工程</h2>
+
+<div class="step"><div class="step-no">1</div><div class="step-body">
+<h3>層流アンカー条件を4～6ケース選ぶ</h3>
+<p>全層流条件から、次の最大条件を選び、同一ケースの重複を除きます。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>アンカー</th><th>選定条件</th><th>主に支配するメッシュ</th></tr></thead>
+<tbody>
+<tr><td>L-Re</td><td>\(Re^{\mathrm{upper}}\) 最大</td><td>速度勾配、圧力損失、入口発達</td></tr>
+<tr><td>L-Pr</td><td>\(Pr\) 最大</td><td>熱境界層</td></tr>
+<tr><td>L-Pe</td><td>\(Pe\) 最大</td><td>流れ方向温度勾配</td></tr>
+<tr><td>L-De</td><td>\(De\) 最大</td><td>曲がり二次流れ</td></tr>
+<tr><td>L-Q</td><td>熱負荷または局所熱流束最大</td><td>壁面温度・熱流束</td></tr>
+<tr><td>L-C</td><td>条件空間の中心</td><td>包絡条件だけによる過剰細分化の確認</td></tr>
+</tbody></table></div>
+<p><span class="rec">実務上</span>最大Re・最大Pr・最大熱負荷が同一ケースなら、1ケースとして扱います。</p>
+</div></div>
+
+<div class="step"><div class="step-no">2</div><div class="step-body">
+<h3>パイロットメッシュで最薄境界層を抽出する</h3>
+<p>パイロットメッシュは量産用ではなく、共通メッシュ寸法を決めるための一時的な高解像度メッシュです。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>項目</th><th>開始値</th></tr></thead>
+<tbody>
+<tr><td>境界層層数</td><td>18～24層</td></tr>
+<tr><td>伸長率</td><td>1.12～1.18</td></tr>
+<tr><td>最小隙間方向の総要素数</td><td>40～60</td></tr>
+<tr><td>曲がり1要素当たり中心角</td><td>2～3°</td></tr>
+</tbody></table></div>
+<p>各アンカーについて、少なくとも「入口発達部」「最大熱負荷位置」「最小曲率部」「出口近傍」で <code>Cut Line 3D</code> を壁面から流体内部へ作成し、速度と温度の法線プロファイルを取得します。</p>
+<div class="equation">
+\[
+F_u(y)=\frac{u_s(y)-u_w}{u_c-u_w},\qquad
+\delta_{u,99}=\min\{y\mid F_u(y)\ge0.99\}
+\]
+\[
+F_T(y)=\frac{|T(y)-T_w|}{|T_c-T_w|},\qquad
+\delta_{T,99}=\min\{y\mid F_T(y)\ge0.99\}
+\]
+<div class="varline"><b>変数：</b> \(y\)：壁面法線距離 [m]、\(u_s\)：局所流れ方向速度 [m/s]、\(u_w\)：壁面速度（固定壁では0）、\(u_c\)：線端またはコア側代表速度、\(T\)：流体温度 [K]、\(T_w\)：壁面温度 [K]、\(T_c\)：線端またはコア側代表温度 [K]、\(\delta_{u,99}\)：99%速度境界層厚さ [m]、\(\delta_{T,99}\)：99%熱境界層厚さ [m]。</div>
+</div>
+<p>対向壁の中央までに99%へ到達しない場合、その断面は「境界層が合流」と判定し、断面全体をMapped＋壁側Distributionで解像します。</p>
+</div></div>
+
+<div class="step"><div class="step-no">3</div><div class="step-body">
+<h3>Productionメッシュの設定値を計算する</h3>
+<p>全アンカー・全評価位置から、最も薄い境界層と、被覆すべき最大境界層を求めます。</p>
+<div class="equation">
+\[
+\delta_{\mathrm{thin}}=\min\left(\delta_{u,99},\delta_{T,99}\right)_{\mathrm{all\ anchors,locations}}
+\]
+\[
+\delta_{\mathrm{cover}}=\max\left(\delta_{u,99},\delta_{T,99}\right)_{\mathrm{all\ anchors,locations}}
+\]
+<div class="varline"><b>変数：</b> \(\delta_{\mathrm{thin}}\)：全条件中で最も薄い速度または熱境界層 [m]、\(\delta_{\mathrm{cover}}\)：境界層要素で覆いたい最大勾配領域 [m]。</div>
+</div>
+<p>初期値として、最薄境界層内の要求層数を \(N_\delta=10\)、伸長率を \(r_{\mathrm{BL}}=1.18\) とし、第一層厚さを計算します。</p>
+<div class="equation">
+\[
+t_{1,L}=\delta_{\mathrm{thin}}\frac{r_{\mathrm{BL}}-1}{r_{\mathrm{BL}}^{N_\delta}-1}
+\]
+\[
+H_{\mathrm{BL},L}=\min\left(\delta_{\mathrm{cover}},0.30g_{\min}\right)
+\]
+\[
+N_{\mathrm{BL},L}=\left\lceil\frac{\ln\left[1+(r_{\mathrm{BL}}-1)H_{\mathrm{BL},L}/t_{1,L}\right]}{\ln r_{\mathrm{BL}}}\right\rceil
+\]
+<div class="varline"><b>変数：</b> \(t_{1,L}\)：第一層厚さ [m]、\(N_\delta\)：最薄境界層内に入れる層数、\(r_{\mathrm{BL}}\)：隣接層厚さ比、\(H_{\mathrm{BL},L}\)：境界層全厚さ [m]、\(g_{\min}\)：最小対向壁間距離 [m]、\(N_{\mathrm{BL},L}\)：境界層総層数、\(\lceil\ \rceil\)：切り上げ。</div>
+</div>
+<div class="callout amber"><div class="title">Mapped断面へ切り替える条件</div>
+\(2H_{\mathrm{BL},L}/g_{\min}\ge0.6\)、または \(N_{\mathrm{BL},L}>20\) 程度となる場合、対向プリズム層を無理に挿入せず、Mapped断面＋両壁側へ細かい対称Distributionを使用します。</div>
+<p>最外層厚さと流体コアの接続は、次を初期目安とします。</p>
+<div class="equation">
+\[
+t_N=t_{1,L}r_{\mathrm{BL}}^{N_{\mathrm{BL},L}-1},\qquad
+0.5\le\frac{h_{\mathrm{core},n}}{t_N}\le2
+\]
+<div class="varline"><b>変数：</b> \(t_N\)：最外境界層の厚さ [m]、\(h_{\mathrm{core},n}\)：隣接するコア要素の壁面法線方向寸法 [m]。</div>
+</div>
+<p>入口・曲がりの流れ方向寸法は、以下を開始値とし、Audit比較で確定します。</p>
+<div class="equation">
+\[
+L_{h,e}=0.05Re_bD_h,\qquad L_{t,e}=0.05Re_bPrD_h
+\]
+\[
+h_{\mathrm{entry},L}\le\frac{\min(L_{h,e},L_{t,e})}{20},\qquad
+h_{\mathrm{bend},L}\le R_c\Delta\phi_{\max}
+\]
+<div class="varline"><b>変数：</b> \(L_{h,e}\)：水力学的入口長さの推定値 [m]、\(L_{t,e}\)：熱入口長さの推定値 [m]、\(h_{\mathrm{entry},L}\)：入口部の最大要素寸法 [m]、\(h_{\mathrm{bend},L}\)：曲がり方向の最大要素寸法 [m]、\(\Delta\phi_{\max}\)：1要素当たりの許容中心角 [rad]。初期値は3～5°。</div>
+</div>
+</div></div>
+
+<div class="step"><div class="step-no">4</div><div class="step-body">
+<h3>COMSOLで <code>Mesh-L-Production</code> を構築する</h3>
+<p><code>Mesh &gt; User-Controlled Mesh</code> に切り替え、次の順で作成します。</p>
+<pre><code>Mesh-L-Production
+├─ Size-Global-L
+├─ Size-Wall-L       → sel_wall_ht
+├─ Size-Bend-L       → sel_bend
+├─ Mapped / Free Quad（Sweep source面）
+├─ Distribution      （壁面法線・流れ方向）
+├─ Boundary Layers-L （Sweep不可領域）
+├─ Swept-L           （長い一定断面部）
+└─ Free Tetrahedral-L（ヘッダ・接続部）</code></pre>
+<ul>
+<li><strong>Sweep可能領域：</strong>断面をMappedし、壁側Distributionで第一層相当寸法と伸長率を制御してからSweptする。</li>
+<li><strong>Sweep不可領域：</strong><code>sel_wall_ht</code> にBoundary Layersを設定し、その外側をFree Tetrahedralで充填する。</li>
+<li><strong>固体：</strong>熱交換面、熱源近傍、最高温度候補だけ局所細分化する。</li>
+<li><strong>Build後：</strong>Information／Warningを確認し、境界層の層数減少や局所消失を見逃さない。</li>
+</ul>
+</div></div>
+
+<div class="step"><div class="step-no">5</div><div class="step-body">
+<h3><code>Mesh-L-Audit</code> を作り、全アンカーを比較する</h3>
+<p>Productionを複製し、次だけを細分化します。</p>
+<div class="table-wrap"><table>
+<thead><tr><th>設定</th><th>Audit変更</th></tr></thead>
+<tbody>
+<tr><td>第一層厚さ</td><td>\(t_{1,A}=0.7t_{1,L}\)</td></tr>
+<tr><td>境界層全厚さ</td><td>Productionと概ね同じ \(H_{\mathrm{BL},L}\) を維持</td></tr>
+<tr><td>壁面接線方向</td><td>Productionの0.8倍</td></tr>
+<tr><td>入口・曲がり・流れ方向</td><td>Productionの0.8倍</td></tr>
+<tr><td>流体コア</td><td>Productionの0.8倍</td></tr>
+<tr><td>固体の界面・熱源近傍</td><td>Productionの0.8倍</td></tr>
+</tbody></table></div>
+<p>第一層を薄くした後のAudit層数は、全厚さを維持するように再計算します。</p>
+<div class="equation">
+\[
+N_{\mathrm{BL},A}=\left\lceil\frac{\ln\left[1+(r_{\mathrm{BL}}-1)H_{\mathrm{BL},L}/t_{1,A}\right]}{\ln r_{\mathrm{BL}}}\right\rceil
+\]
+<div class="varline"><b>変数：</b> \(N_{\mathrm{BL},A}\)：Auditメッシュの境界層層数、\(t_{1,A}\)：Audit第一層厚さ [m]。</div>
+</div>
+<p>評価量の相対差は次で求めます。</p>
+<div class="equation">
+\[
+\varepsilon_Y=\frac{|Y_{\mathrm{prod}}-Y_{\mathrm{audit}}|}{\max(|Y_{\mathrm{audit}}|,Y_{\mathrm{floor}})}
+\]
+<div class="varline"><b>変数：</b> \(Y\)：除熱量、圧力損失、温度標準偏差などの評価量、\(Y_{\mathrm{prod}}\)：Production結果、\(Y_{\mathrm{audit}}\)：Audit結果、\(Y_{\mathrm{floor}}\)：ゼロ除算防止下限、\(\varepsilon_Y\)：相対メッシュ差。</div>
+</div>
+<p>温度は相対差ではなく、\(|T_{\mathrm{prod}}-T_{\mathrm{audit}}|\) の絶対差で判定します。</p>
+</div></div>
+
+<div class="step"><div class="step-no">6</div><div class="step-body">
+<h3>合格したProductionメッシュを固定して量産する</h3>
+<ol>
+<li>全アンカー・全評価量が許容値以内であることを確認する。</li>
+<li>メッシュパラメータ、Selection、Physics、Solver設定、COMSOLバージョンを記録する。</li>
+<li><code>Mesh-L-Production</code> をSweep開始前に一度だけBuildする。</li>
+<li>各ケースでは質量収支・エネルギー収支だけを自動確認する。</li>
+<li>合格ケースのみROM学習データへ登録する。</li>
+</ol>
+<div class="callout green"><div class="title">再検証が必要になる変更</div>
+流量・温度・熱負荷範囲の拡大、冷媒または物性式の変更、流路形状・曲率の変更、境界条件形式の変更、要求精度の厳格化。</div>
+</div></div>
+</section>
+
+<section id="s4">
+<h2>4. COMSOL設定パラメータと評価式</h2>
+<h3>4.1 Global Parametersの最小構成</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>COMSOL名</th><th>定義例</th><th>意味</th></tr></thead>
+<tbody>
+<tr><td><code>Ac</code></td><td>実流路断面積</td><td>\(A_c\)</td></tr>
+<tr><td><code>Pw</code></td><td>実流路濡れ縁</td><td>\(P_w\)</td></tr>
+<tr><td><code>Dh</code></td><td><code>4*Ac/Pw</code></td><td>\(D_h\)</td></tr>
+<tr><td><code>gmin</code></td><td>最小対向壁距離</td><td>\(g_{\min}\)</td></tr>
+<tr><td><code>rbl_L</code></td><td><code>1.18</code></td><td>\(r_{\mathrm{BL}}\)</td></tr>
+<tr><td><code>Ndelta_L</code></td><td><code>10</code></td><td>\(N_\delta\)</td></tr>
+<tr><td><code>t1_L</code></td><td>算定値</td><td>\(t_{1,L}\)</td></tr>
+<tr><td><code>Nbl_L</code></td><td>算定値</td><td>\(N_{\mathrm{BL},L}\)</td></tr>
+<tr><td><code>Hbl_L</code></td><td><code>t1_L*(rbl_L^Nbl_L-1)/(rbl_L-1)</code></td><td>実際の境界層全厚さ確認値</td></tr>
+<tr><td><code>hentry_L</code></td><td>算定・調整値</td><td>入口部最大寸法</td></tr>
+<tr><td><code>hbend_L</code></td><td>算定・調整値</td><td>曲がり部最大寸法</td></tr>
+<tr><td><code>hcore_L</code></td><td>調整値</td><td>流体コア最大寸法</td></tr>
+</tbody></table></div>
+
+<h3>4.2 評価用Variables</h3>
+<p><code>Component 1 &gt; Definitions &gt; Variables</code> に登録します。物理インターフェースのタグや物性変数名は、実モデルの <code>Replace Expression</code> で確認してください。</p>
+<pre><code>un_b       = u*nx + v*ny + w*nz
+mdot_in    = -int_in(rho_f*un_b)
+mdot_out   =  int_out(rho_f*un_b)
+Tb_in      = -int_in(rho_f*un_b*T)/mdot_in
+Tb_out     =  int_out(rho_f*un_b*T)/mdot_out
+pb_in      = -int_in(rho_f*un_b*p)/mdot_in
+pb_out     =  int_out(rho_f*un_b*p)/mdot_out
+dp_io      = pb_in-pb_out
+Tw_avg     = ave_wall(T)
+Tw_sigma   = sqrt(ave_wall((T-Tw_avg)^2))
+Tsolid_max = max_hot(T)
+err_m      = abs(mdot_in-mdot_out)/max(mdot_in,mdot_out)</code></pre>
+<div class="table-wrap"><table>
+<thead><tr><th>変数</th><th>説明</th><th>単位</th></tr></thead>
+<tbody>
+<tr><td><code>rho_f</code></td><td>局所流体密度</td><td>kg/m³</td></tr>
+<tr><td><code>un_b</code></td><td>境界外向き法線速度</td><td>m/s</td></tr>
+<tr><td><code>mdot_in</code>, <code>mdot_out</code></td><td>正値で定義した入口・出口質量流量</td><td>kg/s</td></tr>
+<tr><td><code>Tb_in</code>, <code>Tb_out</code></td><td>質量流量加重バルク温度</td><td>K</td></tr>
+<tr><td><code>pb_in</code>, <code>pb_out</code></td><td>質量流量加重圧力</td><td>Pa</td></tr>
+<tr><td><code>dp_io</code></td><td>入口―出口圧力損失</td><td>Pa</td></tr>
+<tr><td><code>Tw_avg</code></td><td>熱交換面平均温度</td><td>K</td></tr>
+<tr><td><code>Tw_sigma</code></td><td>熱交換面温度標準偏差</td><td>K</td></tr>
+<tr><td><code>Tsolid_max</code></td><td>固体最高温度</td><td>K</td></tr>
+<tr><td><code>err_m</code></td><td>相対質量収支誤差</td><td>1</td></tr>
+</tbody></table></div>
+
+<h3>4.3 エネルギー収支</h3>
+<pre><code>Qf_E = int_in(ht.nteflux) + int_out(ht.nteflux)</code></pre>
+<p><code>Qf_E</code> は、入口・出口の外向き法線に基づく流体の正味エネルギー流出量です。内部の固体―流体境界では、<code>ht.ntflux_u</code> と <code>ht.ntflux_d</code> のどちらが流体側かを一度可視化・符号確認し、流体へ入る熱量を正とする <code>Qwall_to_fluid</code> を定義します。</p>
+<div class="equation">
+\[
+\varepsilon_E=\frac{|Q_{\mathrm{wall\to fluid}}-Q_{f,E}|}{\max(|Q_{\mathrm{wall\to fluid}}|,|Q_{f,E}|,Q_{\mathrm{floor}})}
+\]
+<div class="varline"><b>変数：</b> \(Q_{\mathrm{wall\to fluid}}\)：壁から流体へ入る熱量 [W]、\(Q_{f,E}\)：入口・出口から求めた流体の正味エネルギー増加 [W]、\(Q_{\mathrm{floor}}\)：分母保護用の小さな熱量 [W]、\(\varepsilon_E\)：相対エネルギー収支誤差。</div>
+</div>
+<div class="callout amber"><div class="title">符号確認は一度だけ必須</div>
+内部境界のupside／downsideは幾何向きに依存します。正負を推測せず、熱流束矢印または既知の加熱ケースで流体側を確認してから固定してください。</div>
+</section>
+
+<section id="s5">
+<h2>5. 合否判定と不合格時の修正</h2>
+<h3>5.1 最低限の品質ゲート</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>確認項目</th><th>初期合格基準</th></tr></thead>
+<tbody>
+<tr><td>Mesh Build</td><td>未メッシュ領域・反転要素・Errorなし</td></tr>
+<tr><td>境界層</td><td>主要熱交換面で指定層数が維持される</td></tr>
+<tr><td>質量収支</td><td>\(\varepsilon_m\le0.1\)～0.5%</td></tr>
+<tr><td>エネルギー収支</td><td>\(\varepsilon_E\le0.5\)～1%</td></tr>
+<tr><td>総除熱量</td><td>Auditとの差 1%以下</td></tr>
+<tr><td>圧力損失</td><td>Auditとの差 1～2%以下</td></tr>
+<tr><td>最高温度</td><td>Auditとの差 0.2～0.5 K以下</td></tr>
+<tr><td>平均温度</td><td>Auditとの差 0.2 K以下</td></tr>
+<tr><td>温度均一性</td><td>Auditとの差 2%以下</td></tr>
+</tbody></table></div>
+<p>メッシュ品質値は補助指標です。<code>qualskewness</code> や <code>qualcurvedskewness</code> が0.1未満の要素は位置を確認しますが、境界層の高アスペクト比要素を単一指標だけで不合格にしません。</p>
+
+<h3>5.2 不合格時に触る場所</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>不合格となった評価量</th><th>最初に変更するメッシュ</th></tr></thead>
+<tbody>
+<tr><td>除熱量、壁面温度、出口温度</td><td>第一層厚さ、境界層層数、熱交換面接線方向</td></tr>
+<tr><td>圧力損失</td><td>壁面法線、入口、曲がり、流れ方向</td></tr>
+<tr><td>最高固体温度</td><td>固体―流体界面、熱源近傍、固体厚さ方向</td></tr>
+<tr><td>温度均一性</td><td>壁面接線方向、曲がり内外周、分配ヘッダ</td></tr>
+<tr><td>質量・エネルギー収支</td><td>まずSolver収束、境界符号、熱源・薄層・放射設定を確認</td></tr>
+<tr><td>境界層の層数減少</td><td>壁面Surface mesh、狭隘部、角部処理、Mapped化</td></tr>
+</tbody></table></div>
+<div class="callout red"><div class="title">やらないこと</div>
+不合格の原因を特定せず、Global Sizeだけを一律に細かくすること。自由度を大きく増やしても、壁面法線方向の不足や曲がり部の不足が解消しない場合があります。</div>
+</section>
+
+<section id="s6">
+<h2>6. 使用変数・記号一覧</h2>
+<p>本スリム版で実際に使用した変数だけを掲載します。</p>
+<h3>6.1 幾何・運転・物性</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>記号</th><th>説明</th><th>単位</th></tr></thead>
+<tbody>
+<tr><td>\(A_c\)</td><td>代表流路断面積</td><td>m²</td></tr>
+<tr><td>\(P_w\)</td><td>濡れ縁長さ</td><td>m</td></tr>
+<tr><td>\(D_h\)</td><td>水力直径 \(4A_c/P_w\)</td><td>m</td></tr>
+<tr><td>\(g_{\min}\)</td><td>対向壁間の最小距離</td><td>m</td></tr>
+<tr><td>\(R_c\)</td><td>局所流路中心線の曲率半径</td><td>m</td></tr>
+<tr><td>\(\dot m\)</td><td>質量流量</td><td>kg/s</td></tr>
+<tr><td>\(T_{\mathrm{in}}\)</td><td>入口流体温度</td><td>K</td></tr>
+<tr><td>\(Q_{\mathrm{load}}\)</td><td>固体へ与える総熱負荷</td><td>W</td></tr>
+<tr><td>\(q''\)</td><td>局所壁面熱流束</td><td>W/m²</td></tr>
+<tr><td>\(\rho\)</td><td>流体密度</td><td>kg/m³</td></tr>
+<tr><td>\(\mu\)</td><td>動的粘度</td><td>Pa·s</td></tr>
+<tr><td>\(c_p\)</td><td>定圧比熱</td><td>J/(kg·K)</td></tr>
+<tr><td>\(k_f\)</td><td>流体熱伝導率</td><td>W/(m·K)</td></tr>
+</tbody></table></div>
+
+<h3>6.2 無次元数・速度</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>記号</th><th>説明</th><th>単位</th></tr></thead>
+<tbody>
+<tr><td>\(U_b\)</td><td>断面平均速度</td><td>m/s</td></tr>
+<tr><td>\(Re_b\)</td><td>バルクReynolds数</td><td>1</td></tr>
+<tr><td>\(Re^{\mathrm{upper}}\)</td><td>最小粘度から求めたReynolds数上限</td><td>1</td></tr>
+<tr><td>\(Re_{L,\mathrm{guard}}\)</td><td>対象流路で検証した層流安全上限</td><td>1</td></tr>
+<tr><td>\(Pr\)</td><td>Prandtl数</td><td>1</td></tr>
+<tr><td>\(Pe\)</td><td>Péclet数</td><td>1</td></tr>
+<tr><td>\(De\)</td><td>Dean数</td><td>1</td></tr>
+<tr><td>\(u_s\)</td><td>局所流れ方向速度</td><td>m/s</td></tr>
+<tr><td>\(u_w\)</td><td>壁面速度</td><td>m/s</td></tr>
+<tr><td>\(u_c\)</td><td>コア側代表速度</td><td>m/s</td></tr>
+</tbody></table></div>
+
+<h3>6.3 境界層・メッシュ</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>記号</th><th>説明</th><th>単位</th></tr></thead>
+<tbody>
+<tr><td>\(y\)</td><td>壁面法線距離</td><td>m</td></tr>
+<tr><td>\(T_w\)</td><td>壁面温度</td><td>K</td></tr>
+<tr><td>\(T_c\)</td><td>コア側代表温度</td><td>K</td></tr>
+<tr><td>\(F_u,F_T\)</td><td>速度・温度の無次元回復率</td><td>1</td></tr>
+<tr><td>\(\delta_{u,99}\)</td><td>99%速度境界層厚さ</td><td>m</td></tr>
+<tr><td>\(\delta_{T,99}\)</td><td>99%熱境界層厚さ</td><td>m</td></tr>
+<tr><td>\(\delta_{\mathrm{thin}}\)</td><td>全アンカー中の最薄境界層</td><td>m</td></tr>
+<tr><td>\(\delta_{\mathrm{cover}}\)</td><td>境界層要素で覆う最大勾配領域</td><td>m</td></tr>
+<tr><td>\(N_\delta\)</td><td>最薄境界層内に要求する層数</td><td>1</td></tr>
+<tr><td>\(r_{\mathrm{BL}}\)</td><td>境界層伸長率</td><td>1</td></tr>
+<tr><td>\(t_{1,L}\)</td><td>Production第一層厚さ</td><td>m</td></tr>
+<tr><td>\(H_{\mathrm{BL},L}\)</td><td>Production境界層全厚さ</td><td>m</td></tr>
+<tr><td>\(N_{\mathrm{BL},L}\)</td><td>Production境界層層数</td><td>1</td></tr>
+<tr><td>\(t_N\)</td><td>最外境界層の厚さ</td><td>m</td></tr>
+<tr><td>\(h_{\mathrm{core},n}\)</td><td>境界層に隣接するコア要素の法線寸法</td><td>m</td></tr>
+<tr><td>\(h_{\mathrm{core},L}\)</td><td>流体コアの最大要素寸法</td><td>m</td></tr>
+<tr><td>\(h_{\mathrm{wall},L}\)</td><td>熱交換面の接線方向最大要素寸法</td><td>m</td></tr>
+<tr><td>\(h_{\mathrm{entry},L}\)</td><td>入口部の最大要素寸法</td><td>m</td></tr>
+<tr><td>\(h_{\mathrm{bend},L}\)</td><td>曲がり方向の最大要素寸法</td><td>m</td></tr>
+<tr><td>\(L_{h,e}\)</td><td>水力学的入口長さ推定値</td><td>m</td></tr>
+<tr><td>\(L_{t,e}\)</td><td>熱入口長さ推定値</td><td>m</td></tr>
+<tr><td>\(\Delta\phi_{\max}\)</td><td>曲がり1要素当たりの最大中心角</td><td>rad</td></tr>
+<tr><td>\(t_{1,A}\)</td><td>Audit第一層厚さ</td><td>m</td></tr>
+<tr><td>\(N_{\mathrm{BL},A}\)</td><td>Audit境界層層数</td><td>1</td></tr>
+</tbody></table></div>
+
+<h3>6.4 評価量・誤差</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>記号</th><th>説明</th><th>単位</th></tr></thead>
+<tbody>
+<tr><td>\(\dot Q_f\)</td><td>流体への正味熱移動量</td><td>W</td></tr>
+<tr><td>\(\Delta p\)</td><td>入口―出口圧力損失</td><td>Pa</td></tr>
+<tr><td>\(T_{b,\mathrm{out}}\)</td><td>出口バルク温度</td><td>K</td></tr>
+<tr><td>\(T_{\max}\)</td><td>固体最高温度</td><td>K</td></tr>
+<tr><td>\(\overline T_w\)</td><td>熱交換面平均温度</td><td>K</td></tr>
+<tr><td>\(\sigma_{T,w}\)</td><td>熱交換面温度標準偏差</td><td>K</td></tr>
+<tr><td>\(Y\)</td><td>任意の評価量</td><td>評価量による</td></tr>
+<tr><td>\(Y_{\mathrm{floor}}\)</td><td>相対差分母の保護下限</td><td>評価量による</td></tr>
+<tr><td>\(\varepsilon_Y\)</td><td>ProductionとAuditの相対差</td><td>1</td></tr>
+<tr><td>\(\varepsilon_m\)</td><td>相対質量収支誤差</td><td>1</td></tr>
+<tr><td>\(\varepsilon_E\)</td><td>相対エネルギー収支誤差</td><td>1</td></tr>
+<tr><td>\(Q_{f,E}\)</td><td>入口・出口から求めた流体の正味エネルギー増加</td><td>W</td></tr>
+<tr><td>\(Q_{\mathrm{wall\to fluid}}\)</td><td>固体壁から流体へ入る熱量</td><td>W</td></tr>
+<tr><td>\(Q_{\mathrm{floor}}\)</td><td>エネルギー収支式の分母保護下限</td><td>W</td></tr>
+</tbody></table></div>
+
+<h3>6.5 COMSOL標準変数</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>名前</th><th>説明</th></tr></thead>
+<tbody>
+<tr><td><code>u, v, w</code></td><td>速度のCartesian成分</td></tr>
+<tr><td><code>p</code></td><td>圧力</td></tr>
+<tr><td><code>T</code></td><td>温度</td></tr>
+<tr><td><code>nx, ny, nz</code></td><td>境界外向き法線成分</td></tr>
+<tr><td><code>ht.nteflux</code></td><td>法線総エネルギー流束。Heat Transferタグが異なる場合は接頭辞を変更</td></tr>
+<tr><td><code>ht.ntflux_u, ht.ntflux_d</code></td><td>内部境界upside／downsideの法線総熱流束</td></tr>
+<tr><td><code>qualskewness</code></td><td>Skewness品質</td></tr>
+<tr><td><code>qualcurvedskewness</code></td><td>曲面・高次要素変形を含むSkewness品質</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="s7">
+<h2>7. 完了チェックリスト</h2>
+<div class="two-col">
+<div>
+<h3>共通メッシュ構築</h3>
+<ul class="checklist">
+<li>層流安全上限と対象条件を明記した。</li>
+<li>アンカーを4～6ケースへ絞った。</li>
+<li>パイロット解から \(\delta_{u,99}\)、\(\delta_{T,99}\) を取得した。</li>
+<li>\(t_{1,L}\)、\(H_{\mathrm{BL},L}\)、\(N_{\mathrm{BL},L}\) を算出した。</li>
+<li>狭隘部をBoundary LayersまたはMappedのどちらで扱うか決めた。</li>
+<li>ProductionとAuditを別Meshとして保存した。</li>
+</ul>
+</div>
+<div>
+<h3>品質保証・量産</h3>
+<ul class="checklist">
+<li>全アンカーで主要評価量が許容差内である。</li>
+<li>質量・エネルギー収支が許容値内である。</li>
+<li>境界層の層数減少・局所消失がない。</li>
+<li>メッシュ、Physics、Solver、Versionを記録した。</li>
+<li>量産Sweepでメッシュを各条件ごとに再Buildしない。</li>
+<li>合格ケースだけを学習DBへ登録する。</li>
+</ul>
+</div>
+</div>
+<div class="callout green"><div class="title">終了条件</div>
+<strong>全アンカーで許容差を満たす候補のうち、自由度または求解時間が最小のメッシュ</strong>を <code>Mesh-L-Production</code> として採用します。最も細かいメッシュを採用する必要はありません。</div>
+<div class="footer">本資料は、詳細版「COMSOL 3次元熱流体解析：層流域の共通メッシュ最適化 実務手順書」を、実務で必要な判断・設定・合否判定へ絞って再構成したものです。</div>
+</section>
+
+</div>
+</article>
+</main>
+</div>
+<script>
+const links=[...document.querySelectorAll('#toc a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const obs=new IntersectionObserver(entries=>{
+  const v=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+  if(!v)return;
+  links.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+v.target.id));
+},{rootMargin:'-15% 0px -72% 0px',threshold:[0,.1,.3]});
+secs.forEach(s=>obs.observe(s));
+</script>
+</body>
+</html>
