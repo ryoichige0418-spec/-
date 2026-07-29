@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>COMSOL 一様矩形断面流路｜Mapped＋Sweptメッシュ初期設定・最適化・距離内分割数推定</title>
+<style>
+:root{
+  --bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#5e687a;--line:#d8e1ec;
+  --accent:#175cd3;--accent-bg:#eef5ff;--good:#176b3a;--good-bg:#edf9f1;
+  --warn:#925500;--warn-bg:#fff7e7;--bad:#a12828;--bad-bg:#fff0f0;--code:#eef3f9;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif;line-height:1.72;font-size:16px}
+header{background:linear-gradient(135deg,#102a56,#175cd3);color:#fff;padding:34px max(18px,calc((100% - 1080px)/2))}
+header h1{margin:0 0 10px;font-size:clamp(25px,4.7vw,40px);line-height:1.25}header p{margin:0;max-width:940px;color:#eaf1ff;font-size:clamp(15px,2.7vw,18px)}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 12px 64px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin:16px 0;box-shadow:0 3px 12px rgba(25,45,80,.05)}
+h2{font-size:clamp(21px,3.7vw,28px);margin:3px 0 14px;border-left:5px solid var(--accent);padding-left:12px;line-height:1.35}h3{font-size:19px;color:#183c78;margin:24px 0 10px}h4{font-size:17px;margin:18px 0 8px}p{margin:8px 0 12px}.small{font-size:13px;color:var(--muted)}
+.note,.good,.warning,.bad{border-radius:12px;padding:14px 16px;margin:14px 0}.note{background:var(--accent-bg);border-left:5px solid var(--accent)}.good{background:var(--good-bg);border-left:5px solid var(--good)}.warning{background:var(--warn-bg);border-left:5px solid var(--warn)}.bad{background:var(--bad-bg);border-left:5px solid var(--bad)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media(max-width:760px){.grid2,.grid3{grid-template-columns:1fr}.card{padding:17px}.wrap{padding-left:9px;padding-right:9px}}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:12px 0}table{border-collapse:collapse;width:100%;min-width:700px;background:#fff}th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}th{background:#edf3fb;color:#183c78;font-size:14px;white-space:nowrap}tr:last-child td{border-bottom:0}
+code,.path{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--code);border-radius:6px;padding:2px 6px;font-size:.92em}.path{display:block;padding:10px 12px;overflow-x:auto;white-space:nowrap;margin:8px 0}
+.formula{overflow-x:auto;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:10px 0;font-family:"Times New Roman",serif;font-size:18px;white-space:nowrap}.var{font-family:"Times New Roman",serif;font-style:italic}
+label{display:block;font-size:14px;font-weight:700;color:#34425a;margin-bottom:4px}input,select{width:100%;font:inherit;padding:10px 11px;border:1px solid #b7c3d3;border-radius:8px;background:#fff;color:var(--ink)}button{font:inherit;font-weight:750;background:var(--accent);color:#fff;border:0;border-radius:10px;padding:12px 18px;cursor:pointer;width:100%;margin-top:10px}
+.results{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.result{background:#f7faff;border:1px solid var(--line);border-radius:10px;padding:10px}.result span{display:block;color:var(--muted);font-size:12px}.result b{font-size:18px;color:#153c7b;word-break:break-word}
+@media(max-width:760px){.results{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:430px){.results{grid-template-columns:1fr}}
+.toc a{display:block;color:#174f9e;text-decoration:none;padding:5px 0;border-bottom:1px dashed #dbe3ed}.toc a:last-child{border-bottom:0}
+.checklist{list-style:none;padding-left:0}.checklist li{padding:6px 0 6px 30px;position:relative}.checklist li:before{content:"□";position:absolute;left:4px;top:3px;font-size:21px;color:var(--accent)}
+.distance-panel{border:2px solid #bad0f3;background:#f8fbff;border-radius:14px;padding:16px;margin-top:18px}.distance-panel h3{margin-top:0}.distance-track{position:relative;height:30px;border:1px solid #9fb3cf;border-radius:8px;overflow:hidden;background:#fff;margin:12px 0}.distance-fill{height:100%;background:rgba(23,92,211,.22);border-right:3px solid var(--accent);width:0}.distance-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#243d64;pointer-events:none}
+footer{color:var(--muted);font-size:13px;padding-top:15px;border-top:1px solid var(--line);margin-top:24px}
+@media print{body{background:#fff}.card{box-shadow:none;break-inside:avoid}button{display:none!important}header{background:#fff;color:#000;border-bottom:2px solid #333}header p{color:#333}}
+</style>
+</head>
+<body>
+<header>
+<h1>COMSOL 一様矩形断面流路<br>Mapped＋Sweptメッシュ初期設定・最適化</h1>
+<p>対称指数分布で設定した分割数・Element ratioから、壁面第一要素、中央要素、流路方向分割に加え、指定距離までに何要素入るかを推定します。iPhone・オフライン表示対応。</p>
+</header>
+<main class="wrap">
+<section class="card toc">
+<h2>目次</h2>
+<a href="#quick">1. 推奨初期設定</a><a href="#variables">2. 変数と計算式</a><a href="#sequence">3. COMSOL設定手順</a><a href="#calculator">4. 初期設定・距離内分割数計算ツール</a><a href="#optimization">5. 初期解析結果による最適化</a><a href="#audit">6. 最終Auditと固定判定</a>
+</section>
+
+<section id="quick" class="card">
+<h2>1. 推奨初期設定</h2>
+<div class="good"><strong>基本構成：</strong>入口矩形面をMapped四角形メッシュとし、流路方向へSweptして六面体メッシュを生成します。断面内は両壁へ集中するSymmetric Distributionを使用します。</div>
+<div class="table-wrap"><table><thead><tr><th>項目</th><th>標準初期値</th><th>調整範囲</th></tr></thead><tbody>
+<tr><td>高さ方向</td><td><strong>N<sub>H</sub>=24、R<sub>H</sub>=6、Exponential、Symmetric ON</strong></td><td>N<sub>H</sub>=20～40、R<sub>H</sub>=3～12</td></tr>
+<tr><td>幅方向</td><td><strong>N<sub>W</sub>は中央縦横比≤1.5、R<sub>W</sub>=3</strong></td><td>側壁重要度に応じR<sub>W</sub>=1～6</td></tr>
+<tr><td>流路方向</td><td><strong>Δs≈0.5D<sub>h</sub></strong></td><td>入口・熱負荷変化部は0.1～0.25D<sub>h</sub></td></tr>
+<tr><td>隣接増加率</td><td><strong>q≤1.20を目標</strong></td><td>上限目安1.25</td></tr>
+<tr><td>距離内分割数</td><td><strong>熱・速度境界層厚さ内に8～12要素を初期目標</strong></td><td>最終的にはAudit差で確定</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="variables" class="card">
+<h2>2. 変数と計算式</h2>
+<div class="table-wrap"><table><thead><tr><th>記号</th><th>意味</th><th>単位</th></tr></thead><tbody>
+<tr><td>W, H, L</td><td>矩形流路の幅、高さ、長さ</td><td>mm</td></tr><tr><td>N<sub>W</sub>, N<sub>H</sub>, N<sub>L</sub></td><td>幅、高さ、流路方向の要素数</td><td>—</td></tr>
+<tr><td>R<sub>W</sub>, R<sub>H</sub></td><td>中央要素寸法／壁面要素寸法として扱うElement ratio</td><td>—</td></tr><tr><td>q</td><td>壁面から中央へ向かう隣接要素寸法倍率</td><td>—</td></tr>
+<tr><td>h<sub>w</sub>, h<sub>c</sub></td><td>壁面第一要素寸法、中央要素寸法</td><td>mm</td></tr><tr><td>d</td><td>分割数を評価する壁面からの指定距離</td><td>mm</td></tr>
+<tr><td>n<sub>full</sub></td><td>指定距離内に完全に収まる要素数</td><td>—</td></tr><tr><td>n<sub>eff</sub></td><td>指定距離の途中で切れる要素を割合換算した実効分割数</td><td>—</td></tr>
+</tbody></table></div>
+<div class="formula">D<sub>h</sub> = 2WH / (W + H)</div>
+<p>偶数分割N、Element ratio R、片側要素数m=N/2とすると、対称指数分布の近似は次式です。</p>
+<div class="formula">q = R<sup>1/(m−1)</sup></div>
+<div class="formula">h<sub>w</sub> = (S/2)(q−1)/(q<sup>m</sup>−1),　h<sub>i</sub> = h<sub>w</sub>q<sup>i−1</sup></div>
+<div class="formula">x<sub>k</sub> = h<sub>w</sub>(q<sup>k</sup>−1)/(q−1)</div>
+<p>Sは評価方向の全長（WまたはH）、x<sub>k</sub>は壁面からk要素目の外側境界までの累積距離です。指定距離dに対し、x<sub>k</sub>≤d&lt;x<sub>k+1</sub>となるとき、</p>
+<div class="formula">n<sub>full</sub> = k,　n<sub>eff</sub> = k + (d−x<sub>k</sub>)/h<sub>k+1</sub></div>
+<div class="note"><strong>中央を越える距離：</strong>計算ツールは要素寸法列を左右対称に展開して数えるため、d&gt;S/2にも対応します。</div>
+</section>
+
+<section id="sequence" class="card">
+<h2>3. COMSOL設定手順</h2>
+<div class="path">Component 1 → Mesh 1 → User-controlled mesh → Mapped 1 → Distribution-H / Distribution-W → Swept 1 → Distribution-L</div>
+<div class="table-wrap"><table><thead><tr><th>ノード</th><th>初期設定</th><th>注意点</th></tr></thead><tbody>
+<tr><td>Mapped 1</td><td>入口矩形面をBoundary Selection</td><td>向かい合う辺の要素数を一致させる</td></tr>
+<tr><td>Distribution-H</td><td>Predefined、N<sub>H</sub>、Exponential、R<sub>H</sub>、Symmetric ON</td><td>狭い方向・主要熱交換壁を優先</td></tr>
+<tr><td>Distribution-W</td><td>Predefined、N<sub>W</sub>、Exponential、R<sub>W</sub>、Symmetric ON</td><td>側壁影響が小さければ集中を弱める</td></tr>
+<tr><td>Swept 1</td><td>流体ドメイン、Mapped面をSource、出口をDestination</td><td>Hexahedraを生成</td></tr>
+<tr><td>Distribution-L</td><td>Fixed number of elements、N<sub>L</sub>、Equidistant</td><td>入口部だけ細かくする場合はPartition</td></tr>
+</tbody></table></div>
+</section>
+
+<section id="calculator" class="card">
+<h2>4. 初期設定・距離内分割数計算ツール</h2>
+<p>すべてmm単位で入力します。指定距離は各方向の片側壁面から測ります。</p>
+<div class="grid3">
+<div><label for="W">幅 W [mm]</label><input id="W" type="number" value="12" min="0.001" step="0.1"></div>
+<div><label for="H">高さ H [mm]</label><input id="H" type="number" value="7" min="0.001" step="0.1"></div>
+<div><label for="L">長さ L [mm]</label><input id="L" type="number" value="2000" min="0.001" step="1"></div>
+<div><label for="NH">高さ方向要素数 N_H（偶数）</label><input id="NH" type="number" value="24" min="4" step="2"></div>
+<div><label for="RH">高さ方向Element ratio R_H</label><input id="RH" type="number" value="6" min="1" step="0.5"></div>
+<div><label for="dH">高さ方向の評価距離 d_H [mm]</label><input id="dH" type="number" value="0.5" min="0" step="0.01"></div>
+<div><label for="RW">幅方向Element ratio R_W</label><input id="RW" type="number" value="3" min="1" step="0.5"></div>
+<div><label for="Acs">中央部許容縦横比 A_cs</label><input id="Acs" type="number" value="1.5" min="0.5" step="0.1"></div>
+<div><label for="minNW">幅方向最小要素数</label><input id="minNW" type="number" value="12" min="4" step="2"></div>
+<div><label for="dW">幅方向の評価距離 d_W [mm]</label><input id="dW" type="number" value="0.5" min="0" step="0.01"></div>
+<div><label for="alpha">軸方向係数 α_L（Δs/D_h）</label><input id="alpha" type="number" value="0.5" min="0.02" step="0.05"></div>
+<div><label for="requiredN">指定距離内の目標分割数</label><input id="requiredN" type="number" value="8" min="1" step="1"></div>
+</div>
+<button id="calcButton" type="button">初期設定と距離内分割数を計算</button>
+<div id="messages" class="warning" style="display:none" aria-live="polite"></div>
+<div class="results">
+<div class="result"><span>水力直径 D_h</span><b id="oDh">—</b></div><div class="result"><span>高さ隣接増加率 q_H</span><b id="oqH">—</b></div><div class="result"><span>高さ壁面要素 h_w,H</span><b id="ohwH">—</b></div>
+<div class="result"><span>高さ中央要素 h_c,H</span><b id="ohcH">—</b></div><div class="result"><span>推奨幅方向要素数 N_W</span><b id="oNW">—</b></div><div class="result"><span>幅隣接増加率 q_W</span><b id="oqW">—</b></div>
+<div class="result"><span>幅壁面要素 h_w,W</span><b id="ohwW">—</b></div><div class="result"><span>幅中央要素 h_c,W</span><b id="ohcW">—</b></div><div class="result"><span>中央部縦横比</span><b id="oAR">—</b></div>
+<div class="result"><span>流路方向要素数 N_L</span><b id="oNL">—</b></div><div class="result"><span>実際の軸方向要素長</span><b id="ods">—</b></div><div class="result"><span>概算六面体要素数</span><b id="oElem">—</b></div>
+</div>
+
+<div class="distance-panel">
+<h3>指定距離までの分割数推定</h3>
+<div class="grid2">
+<div>
+<h4>高さ方向：壁面から d<sub>H</sub></h4>
+<div class="distance-track"><div id="barH" class="distance-fill"></div><div id="barLabelH" class="distance-label">—</div></div>
+<div class="results">
+<div class="result"><span>完全に収まる要素数</span><b id="oHFull">—</b></div><div class="result"><span>実効分割数</span><b id="oHEff">—</b></div><div class="result"><span>直前の要素境界</span><b id="oHPrev">—</b></div><div class="result"><span>次の要素境界</span><b id="oHNext">—</b></div><div class="result"><span>指定距離を横切る要素厚さ</span><b id="oHLocal">—</b></div><div class="result"><span>目標分割数判定</span><b id="oHStatus">—</b></div>
+</div>
+</div>
+<div>
+<h4>幅方向：壁面から d<sub>W</sub></h4>
+<div class="distance-track"><div id="barW" class="distance-fill"></div><div id="barLabelW" class="distance-label">—</div></div>
+<div class="results">
+<div class="result"><span>完全に収まる要素数</span><b id="oWFull">—</b></div><div class="result"><span>実効分割数</span><b id="oWEff">—</b></div><div class="result"><span>直前の要素境界</span><b id="oWPrev">—</b></div><div class="result"><span>次の要素境界</span><b id="oWNext">—</b></div><div class="result"><span>指定距離を横切る要素厚さ</span><b id="oWLocal">—</b></div><div class="result"><span>目標分割数判定</span><b id="oWStatus">—</b></div>
+</div>
+</div>
+</div>
+</div>
+<div class="small">COMSOLのPredefined・Exponential・Symmetric Distributionを、Element ratio＝中央要素／壁面要素とした幾何級数で近似しています。実際の節点位置は、COMSOLで生成後にEdge meshを確認してください。</div>
+</section>
+
+<section id="optimization" class="card">
+<h2>5. 初期解析結果によるメッシュ最適化</h2>
+<div class="good"><strong>方向別に1つずつ変更：</strong>初期メッシュMesh-0に対し、Mesh-H、Mesh-W、Mesh-Lを作成し、結果へ効く方向だけをProductionへ反映します。</div>
+<div class="table-wrap"><table><thead><tr><th>感度メッシュ</th><th>変更</th><th>主な確認対象</th></tr></thead><tbody>
+<tr><td>Mesh-H</td><td>N<sub>H</sub>を1.25～1.35倍、R<sub>H</sub>は維持</td><td>総除熱量、上下壁温、熱流束、圧力損失</td></tr>
+<tr><td>Mesh-W</td><td>N<sub>W</sub>を1.20～1.30倍、R<sub>W</sub>は維持</td><td>幅方向温度分布、側壁影響、圧力損失</td></tr>
+<tr><td>Mesh-L</td><td>N<sub>L</sub>を1.20～1.30倍</td><td>入口発達、出口温度、軸方向局所温度</td></tr>
+</tbody></table></div>
+<div class="formula">S<sub>dir,Y</sub> = |Y<sub>dir</sub> − Y<sub>0</sub>| / max(|Y<sub>dir</sub>|, Y<sub>floor</sub>) × 100 [%]</div>
+<div class="table-wrap"><table><thead><tr><th>結果の変化</th><th>優先修正</th></tr></thead><tbody>
+<tr><td>Q̇・壁温・q″がMesh-Hで変化</td><td>N<sub>H</sub>を増加。指定した熱境界層厚さd<sub>H</sub>内の実効分割数も確認</td></tr>
+<tr><td>幅方向温度偏差がMesh-Wで変化</td><td>N<sub>W</sub>を増加。必要ならR<sub>W</sub>を増加</td></tr>
+<tr><td>入口付近・出口温度がMesh-Lで変化</td><td>N<sub>L</sub>を増加、または入口区間をPartition</td></tr>
+<tr><td>全方向感度が小さい</td><td>最終Auditへ進む。計算費削減が必要ならCoarse試験</td></tr>
+</tbody></table></div>
+<div class="note"><strong>距離内分割数の使い方：</strong>初期解析から得た速度境界層厚さδ<sub>u,99</sub>または熱境界層厚さδ<sub>T,99</sub>をd<sub>H</sub>またはd<sub>W</sub>へ入力し、その厚さ内に8～12要素程度あるかを確認します。ただし、最終判断は評価量のAudit差で行います。</div>
+</section>
+
+<section id="audit" class="card">
+<h2>6. 最終Auditと固定判定</h2>
+<div class="table-wrap"><table><thead><tr><th>方向</th><th>Production</th><th>Audit初期値</th></tr></thead><tbody>
+<tr><td>高さ</td><td>N<sub>H</sub></td><td>1.3N<sub>H</sub>を次の偶数へ切上げ</td></tr><tr><td>幅</td><td>N<sub>W</sub></td><td>1.2N<sub>W</sub>を次の偶数へ切上げ</td></tr><tr><td>流路方向</td><td>N<sub>L</sub></td><td>1.25N<sub>L</sub>を切上げ</td></tr><tr><td>Element ratio</td><td>R<sub>H</sub>, R<sub>W</sub></td><td>原則維持</td></tr>
+</tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>評価量</th><th>Production－Audit差の初期目安</th></tr></thead><tbody>
+<tr><td>総除熱量</td><td>1%以下</td></tr><tr><td>圧力損失</td><td>1～2%以下</td></tr><tr><td>出口温度</td><td>0.2 K以下</td></tr><tr><td>最大固体温度</td><td>0.2～0.5 K以下</td></tr><tr><td>温度均一性</td><td>2%以下または設計許容値以下</td></tr>
+</tbody></table></div>
+<ul class="checklist"><li>質量・エネルギー収支が合格</li><li>指定境界層厚さ内の実効分割数を記録</li><li>方向別感度が許容範囲内</li><li>最終Audit差が許容範囲内</li><li>要素数・自由度・計算時間を記録</li></ul>
+</section>
+<footer>推定値は対称指数分布の近似です。COMSOLでBuild後、断面Edgeの節点位置と実際のプロファイルを確認し、Production／Audit差に基づいて共通メッシュを固定してください。</footer>
+</main>
+<script>
+'use strict';
+function evenCeil(x){let n=Math.ceil(x);if(n%2!==0)n++;return Math.max(4,n)}
+function fmt(x,d=4){if(!isFinite(x))return '—';if(Math.abs(x)>=1e6)return x.toLocaleString('ja-JP',{maximumFractionDigits:0});if(Math.abs(x)>=100)return x.toLocaleString('ja-JP',{maximumFractionDigits:2});if(Math.abs(x)>=1)return x.toLocaleString('ja-JP',{maximumFractionDigits:d});return x.toLocaleString('ja-JP',{maximumSignificantDigits:5})}
+function symmetricDistribution(size,N,R){
+  N=evenCeil(N);R=Math.max(1,R);const m=N/2;let q,wall;
+  if(Math.abs(R-1)<1e-12){q=1;wall=size/N}else{q=Math.pow(R,1/(m-1));wall=(size/2)*(q-1)/(Math.pow(q,m)-1)}
+  const half=[];for(let i=0;i<m;i++)half.push(wall*Math.pow(q,i));
+  const widths=half.concat([...half].reverse());
+  return {size,N,R,m,q,wall,center:half[m-1],widths};
+}
+function distanceCount(dist,d){
+  const target=Math.min(Math.max(0,d),dist.size);let cum=0,full=0,local=dist.widths[0]||0,prev=0,next=0,partial=0;
+  const tol=Math.max(1,dist.size)*1e-12;
+  if(target>=dist.size-tol)return {target,full:dist.N,eff:dist.N,prev:dist.size,next:dist.size,local:dist.widths[dist.N-1]||0,clamped:d>dist.size};
+  for(let i=0;i<dist.widths.length;i++){
+    const w=dist.widths[i];
+    if(cum+w<=target+tol){cum+=w;full++;continue}
+    local=w;prev=cum;next=cum+w;partial=w>0?(target-cum)/w:0;break;
+  }
+  return {target,full,eff:full+Math.max(0,Math.min(1,partial)),prev,next,local,clamped:d>dist.size};
+}
+function setText(id,text){document.getElementById(id).textContent=text}
+function calculate(){
+  const W=parseFloat(document.getElementById('W').value),H=parseFloat(document.getElementById('H').value),L=parseFloat(document.getElementById('L').value);
+  const NH=evenCeil(parseFloat(document.getElementById('NH').value)),RH=parseFloat(document.getElementById('RH').value),RW=parseFloat(document.getElementById('RW').value);
+  const dH=parseFloat(document.getElementById('dH').value),dW=parseFloat(document.getElementById('dW').value),Acs=parseFloat(document.getElementById('Acs').value),alpha=parseFloat(document.getElementById('alpha').value);
+  const minNW=evenCeil(parseFloat(document.getElementById('minNW').value)),requiredN=parseFloat(document.getElementById('requiredN').value);
+  const values=[W,H,L,NH,RH,RW,dH,dW,Acs,alpha,minNW,requiredN];const box=document.getElementById('messages');
+  if(values.some(v=>!isFinite(v))||W<=0||H<=0||L<=0||NH<4||RH<1||RW<1||dH<0||dW<0||Acs<=0||alpha<=0||requiredN<=0){box.style.display='block';box.textContent='すべての欄へ有効な正の数値を入力してください（評価距離は0以上）。';return}
+  const Dh=2*W*H/(W+H),distH=symmetricDistribution(H,NH,RH);let NW=minNW,distW=symmetricDistribution(W,NW,RW);
+  while(distW.center/distH.center>Acs&&NW<2000){NW+=2;distW=symmetricDistribution(W,NW,RW)}
+  const NL=Math.max(1,Math.ceil(L/(alpha*Dh))),ds=L/NL,elem=distH.N*distW.N*NL;const cH=distanceCount(distH,dH),cW=distanceCount(distW,dW);const msgs=[];
+  if(distH.q>1.25)msgs.push('高さ方向の隣接増加率q_Hが1.25を超えています。N_Hを増やすかR_Hを下げてください。');
+  if(distW.q>1.25)msgs.push('幅方向の隣接増加率q_Wが1.25を超えています。N_Wを増やすかR_Wを下げてください。');
+  if(dH>H)msgs.push('d_Hが流路高さHを超えたため、Hまでに制限して計算しました。');if(dW>W)msgs.push('d_Wが流路幅Wを超えたため、Wまでに制限して計算しました。');
+  if(elem>3e6)msgs.push('概算要素数が300万を超えています。軸方向分割または幅方向分割を再確認してください。');
+  if(msgs.length){box.style.display='block';box.innerHTML=msgs.map(x=>'• '+x).join('<br>')}else box.style.display='none';
+  setText('oDh',fmt(Dh)+' mm');setText('oqH',fmt(distH.q));setText('ohwH',fmt(distH.wall)+' mm');setText('ohcH',fmt(distH.center)+' mm');setText('oNW',distW.N);setText('oqW',fmt(distW.q));setText('ohwW',fmt(distW.wall)+' mm');setText('ohcW',fmt(distW.center)+' mm');setText('oAR',fmt(distW.center/distH.center));setText('oNL',NL);setText('ods',fmt(ds)+' mm');setText('oElem',elem.toLocaleString('ja-JP'));
+  renderDistance('H',cH,H,requiredN);renderDistance('W',cW,W,requiredN);
+}
+function renderDistance(axis,c,size,requiredN){
+  setText('o'+axis+'Full',c.full+' 要素');setText('o'+axis+'Eff',fmt(c.eff,3)+' 分割');setText('o'+axis+'Prev',fmt(c.prev)+' mm');setText('o'+axis+'Next',fmt(c.next)+' mm');setText('o'+axis+'Local',fmt(c.local)+' mm');setText('o'+axis+'Status',c.eff>=requiredN?'達成':'不足');
+  const pct=size>0?Math.min(100,Math.max(0,c.target/size*100)):0;document.getElementById('bar'+axis).style.width=pct+'%';setText('barLabel'+axis,'壁面から '+fmt(c.target)+' mm（全長の '+fmt(pct,3)+'%）');
+}
+document.getElementById('calcButton').addEventListener('click',calculate);document.querySelectorAll('#calculator input').forEach(el=>el.addEventListener('change',calculate));window.addEventListener('DOMContentLoaded',calculate);
+</script>
+</body>
+</html>
