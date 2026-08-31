@@ -1,0 +1,57 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ヒートシンクCFD最適化：パラメータ体系と用途</title><style>body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",Meiryo,sans-serif;margin:0;background:#f5f7fa;color:#1f2933;line-height:1.7}main{max-width:1100px;margin:auto;padding:24px 16px 56px}.hero,.card{background:#fff;border:1px solid #dfe5eb;border-radius:16px;padding:22px;margin:16px 0}.hero{background:linear-gradient(135deg,#fff,#eef4fc)}h1{font-size:clamp(28px,4vw,42px);line-height:1.2;margin:0 0 10px}h2{margin-top:32px}h3{margin-top:22px}p{margin:8px 0}.lead{color:#5f6b76;font-size:17px}.note{border-left:4px solid #2457a6;background:#f7fbff}.warn{border-left:4px solid #b47b00;background:#fff9eb}.ok{border-left:4px solid #2f7d4a;background:#f3fbf5}table{width:100%;border-collapse:collapse;font-size:14px}th,td{border:1px solid #dfe5eb;padding:9px 10px;vertical-align:top;text-align:left}th{background:#f0f4f8}code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f2f4f6;padding:2px 5px;border-radius:5px}pre{overflow:auto;background:#17202b;color:#f4f7fa;padding:15px;border-radius:10px}.eq{font-family:Georgia,"Times New Roman",serif;font-size:20px;text-align:center;background:#fafbfd;border:1px solid #dfe5eb;border-radius:10px;padding:13px;margin:12px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.pill{border:1px solid #dfe5eb;border-radius:10px;padding:12px;background:#fff}.flow{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:14px}.step{border:1px solid #dfe5eb;border-radius:9px;padding:9px 12px;background:#fff;font-weight:700}.arrow{color:#697580;font-weight:700}@media(max-width:700px){.hero,.card{padding:16px}table{font-size:12px}th,td{padding:7px}}</style></head><body><main>
+<section class="hero"><h1>ヒートシンクCFD最適化<br>パラメータ体系と用途</h1><p class="lead">フィン太さ・高さ・密度を主要設計変数として、COMSOL CFD結果から冷却能力の予測モデルを構築し、熱性能と圧力損失のトレードオフ最適化へ展開するための整理資料。</p></section>
+<section class="card note"><h2 style="margin-top:0">基本方針</h2><p>最適化アルゴリズムへ直接渡す独立設計変数は <code>d_fin</code>、<code>h_fin</code>、<code>PR_fin</code> の3つを基本とする。<code>p_fin</code>、<code>N_fin</code>、<code>rho_fin</code> などは派生量として扱い、独立自由度として二重に与えない。</p></section>
+<h2>1. 実際に使用するパラメータ一覧</h2><section class="card"><table><thead><tr><th>区分</th><th>パラメータ</th><th>定義・例</th><th>主な用途</th></tr></thead><tbody>
+<tr><td><b>設計変数</b></td><td><code>d_fin</code></td><td>フィン直径 [m]</td><td>フィン太さの最適化</td></tr><tr><td><b>設計変数</b></td><td><code>h_fin</code></td><td>フィン高さ [m]</td><td>放熱面積・流動抵抗の調整</td></tr><tr><td><b>設計変数</b></td><td><code>PR_fin</code></td><td><code>p_fin/d_fin</code></td><td>フィン密度の独立制御</td></tr>
+<tr><td>派生形状</td><td><code>r_fin</code></td><td><code>d_fin/2</code></td><td>Geometry生成</td></tr><tr><td>派生形状</td><td><code>p_fin</code></td><td><code>PR_fin*d_fin</code></td><td>フィン中心間ピッチ</td></tr><tr><td>派生形状</td><td><code>g_fin</code></td><td><code>p_fin-d_fin</code></td><td>最小流路幅・圧損評価</td></tr><tr><td>派生形状</td><td><code>Nx</code></td><td>X方向フィン本数</td><td>Geometry生成、流路閉塞評価</td></tr><tr><td>派生形状</td><td><code>Ny</code></td><td>Y方向フィン本数</td><td>Geometry生成、流路閉塞評価</td></tr><tr><td>派生形状</td><td><code>N_fin</code></td><td><code>Nx*Ny</code></td><td>総フィン数</td></tr><tr><td>派生形状</td><td><code>rho_fin</code></td><td><code>N_fin/A_base</code></td><td>実フィン密度</td></tr><tr><td>派生形状</td><td><code>AR_fin</code></td><td><code>h_fin/d_fin</code></td><td>無次元形状指標</td></tr><tr><td>派生形状</td><td><code>A_fin</code></td><td>全フィン表面積</td><td>放熱能力との相関</td></tr><tr><td>派生形状</td><td><code>V_fin</code></td><td>全フィン体積</td><td>重量・材料量評価</td></tr><tr><td>派生形状</td><td><code>open_frac</code></td><td>開口率</td><td>CFD流動抵抗評価</td></tr>
+<tr><td>CFD条件</td><td><code>U_in</code></td><td>入口平均流速</td><td>強制対流条件</td></tr><tr><td>CFD条件</td><td><code>Qv</code></td><td>体積流量</td><td>ファン／ポンプ条件</td></tr><tr><td>CFD条件</td><td><code>T_in</code></td><td>流体入口温度</td><td>冷却能力の基準温度</td></tr><tr><td>熱条件</td><td><code>Q_heat</code></td><td>発熱量 [W]</td><td>熱負荷</td></tr><tr><td>熱条件</td><td><code>q_heat</code></td><td>面熱流束 [W/m²]</td><td>面積に依存しない熱負荷指定</td></tr>
+<tr><td>流体物性</td><td><code>rho_f</code></td><td>密度</td><td>Reynolds数・圧損</td></tr><tr><td>流体物性</td><td><code>mu_f</code></td><td>粘度</td><td>Reynolds数・圧損</td></tr><tr><td>流体物性</td><td><code>k_f</code></td><td>熱伝導率</td><td>対流熱伝達</td></tr><tr><td>流体物性</td><td><code>cp_f</code></td><td>比熱</td><td>流体温度上昇</td></tr><tr><td>固体物性</td><td><code>k_s</code></td><td>ヒートシンク熱伝導率</td><td>フィン効率・温度分布</td></tr>
+<tr><td>診断量</td><td><code>Re_ch</code></td><td>ダクトReynolds数</td><td>流動状態評価</td></tr><tr><td>診断量</td><td><code>Re_gap</code></td><td>ギャップ基準Re</td><td>フィン間流れ評価</td></tr><tr><td>診断量</td><td><code>Delta_p</code></td><td>圧力損失 [Pa]</td><td>流動抵抗・ファン要求</td></tr>
+<tr><td>性能値</td><td><code>T_max</code></td><td>最大固体温度</td><td>熱設計上限制約</td></tr><tr><td>性能値</td><td><code>T_base_avg</code></td><td>ベース平均温度</td><td>冷却性能代表値</td></tr><tr><td>性能値</td><td><code>R_th</code></td><td>熱抵抗 [K/W]</td><td>主要冷却性能指標</td></tr><tr><td>性能値</td><td><code>PumpPower</code></td><td>流体駆動動力</td><td>流動コスト評価</td></tr>
+<tr><td>制約</td><td><code>g_cfd_min</code></td><td>最小許容ギャップ</td><td>フィン干渉・極小流路防止</td></tr><tr><td>制約</td><td><code>open_row_min</code></td><td>最小開口率</td><td>過度な閉塞防止</td></tr><tr><td>制約</td><td><code>c_top_min</code></td><td>最小上壁クリアランス</td><td>ダクト干渉防止</td></tr>
+</tbody></table></section>
+<h2>2. 最適化へ直接渡す設計変数</h2><section class="card"><pre>d_fin
+h_fin
+PR_fin</pre><p>初期レンジ例：</p><pre>d_fin  : 3～8 mm
+h_fin  : 10～40 mm
+PR_fin : 1.3～3.0</pre><div class="eq">PR<sub>fin</sub> = p<sub>fin</sub> / d<sub>fin</sub></div><p><code>rho_fin</code> はフィン本数の整数化により階段状に変化する一方、<code>PR_fin</code> は連続量で、DOEやサロゲートモデルの入力として扱いやすい。</p></section>
+<h2>3. 冷却能力予測モデル</h2><section class="card"><h3>最小モデル</h3><pre>X = [d_fin, h_fin, PR_fin]
+Y = [R_th, Delta_p]</pre><div class="eq">R<sub>th</sub> = f(d<sub>fin</sub>, h<sub>fin</sub>, PR<sub>fin</sub>)</div><div class="eq">Δp = g(d<sub>fin</sub>, h<sub>fin</sub>, PR<sub>fin</sub>)</div><h3>運転条件まで変える場合</h3><pre>X = [d_fin, h_fin, PR_fin, U_in, T_in, Q_heat]</pre><p>流体種類も変更する場合は <code>rho_f</code>、<code>mu_f</code>、<code>k_f</code>、<code>cp_f</code> を追加する。</p></section>
+<h2>4. 物理特徴量</h2><section class="card"><div class="grid"><div class="pill"><b><code>AR_fin</code></b><br>フィンの細長さ</div><div class="pill"><b><code>g_fin</code></b><br>実流路ギャップ</div><div class="pill"><b><code>N_fin</code></b><br>フィン総本数</div><div class="pill"><b><code>A_fin</code></b><br>総放熱表面積</div><div class="pill"><b><code>open_frac</code></b><br>流路開口率</div><div class="pill"><b><code>Re_gap</code></b><br>フィン間流動状態</div></div><div class="flow"><div class="step">d_fin / h_fin / PR_fin</div><div class="arrow">→</div><div class="step">Geometry</div><div class="arrow">→</div><div class="step">g_fin / A_fin / open_frac / AR_fin / Re_gap</div><div class="arrow">→</div><div class="step">R_th / Δp</div></div><div class="card warn"><b>注意：</b> <code>d_fin</code>、<code>PR_fin</code>、<code>p_fin</code>、<code>g_fin</code> は強く相関する。線形回帰では多重共線性が生じやすいため、「元の設計変数だけ」と「物理特徴量主体」のモデルを比較する。</div></section>
+<h2>5. 冷却能力の定義</h2><section class="card"><div class="eq">R<sub>th</sub> = (T<sub>base,avg</sub> − T<sub>in</sub>) / Q<sub>heat</sub></div><pre>R_th = (T_base_avg-T_in)/Q_heat</pre><p><b>値が小さいほど冷却性能が高い。</b></p></section>
+<h2>6. 最適化問題</h2><section class="card"><h3>単目的</h3><div class="eq">min R<sub>th</sub>　subject to　Δp ≤ Δp<sub>max</sub></div><h3>多目的</h3><div class="eq">minimize [ R<sub>th</sub>, Δp ]</div><p>Pareto Frontにより、冷却性能と圧力損失のトレードオフを可視化できる。</p></section>
+<h2>7. 推奨ベンチマーク構成</h2><section class="card"><table><thead><tr><th>カテゴリ</th><th>推奨変数</th></tr></thead><tbody><tr><td>Design Variables</td><td><code>d_fin</code>, <code>h_fin</code>, <code>PR_fin</code></td></tr><tr><td>Fixed Parameters</td><td><code>L_base</code>, <code>W_base</code>, <code>t_base</code>, <code>U_in</code>, <code>T_in</code>, <code>Q_heat</code>, <code>rho_f</code>, <code>mu_f</code>, <code>k_f</code>, <code>cp_f</code>, <code>k_s</code></td></tr><tr><td>Derived Geometry</td><td><code>p_fin</code>, <code>g_fin</code>, <code>Nx</code>, <code>Ny</code>, <code>N_fin</code>, <code>AR_fin</code>, <code>A_fin</code>, <code>V_fin</code>, <code>open_frac</code></td></tr><tr><td>CFD Diagnostic</td><td><code>Re_ch</code>, <code>Re_gap</code>, <code>Delta_p</code></td></tr><tr><td>Thermal Response</td><td><code>T_max</code>, <code>T_base_avg</code>, <code>R_th</code></td></tr><tr><td>Objectives</td><td><code>min R_th</code>, <code>min Delta_p</code></td></tr></tbody></table></section>
+<h2>8. 制約条件</h2><section class="card ok"><pre>g_fin >= g_cfd_min
+open_row >= open_row_min
+c_edge_x_act >= c_edge
+c_edge_y_act >= c_edge
+h_fin <= H_flow-c_top_min</pre><p>最適化時には、幾何成立・流路閉塞・上壁干渉・CFDメッシュ成立を同時に満たす探索領域へ限定する。</p></section>
+<h2>9. COMSOL DOE / CSV データセット構造</h2><section class="card"><pre>Case_ID
+
+# Design variables
+d_fin
+h_fin
+PR_fin
+
+# Derived geometry
+p_fin
+g_fin
+Nx
+Ny
+N_fin
+AR_fin
+A_fin
+open_frac
+
+# Flow diagnostics
+Re_ch
+Re_gap
+
+# CFD results
+Delta_p
+
+# Thermal results
+T_max
+T_base_avg
+R_th</pre><div class="flow"><div class="step">COMSOL DOE</div><div class="arrow">→</div><div class="step">CSV</div><div class="arrow">→</div><div class="step">Python</div><div class="arrow">→</div><div class="step">予測モデル</div><div class="arrow">→</div><div class="step">最適化</div><div class="arrow">→</div><div class="step">COMSOL再検証</div></div></section>
+</main></body></html>
