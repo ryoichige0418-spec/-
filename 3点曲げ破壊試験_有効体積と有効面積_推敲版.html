@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="color-scheme" content="light">
+<title>3点曲げ破壊試験の有効体積と有効面積｜脆性材料の強度評価</title>
+<meta name="description" content="破壊起点の見方、3点曲げの応力分布、ワイブル係数の求め方から、有効体積・有効面積の積分と寸法換算までを学ぶメカエンジニア向け教材。">
+<style>:root{--ink:#182e38;--text:#283d43;--muted:#53676b;--line:#d1d8cf;--paper:#faf8f2;--white:#fffdf9;--teal:#086d68;--teal-faint:#e8f1eb;--rust:#a3432d;--rust-faint:#f7ece2;--sans:"Hiragino Kaku Gothic ProN","Yu Gothic","Noto Sans CJK JP",Meiryo,sans-serif;--serif:"Hiragino Mincho ProN","Yu Mincho","Noto Serif CJK JP",serif;--mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:1.6rem}
+body{margin:0;background:var(--paper);color:var(--text);font:400 16px/1.93 var(--sans);-webkit-text-size-adjust:100%;line-break:strict;overflow-wrap:break-word}
+a{color:var(--teal);text-underline-offset:4px}button,input,select{font:inherit}a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #bc6035;outline-offset:4px}
+.skip{position:absolute;left:.5rem;top:-8rem;background:white;padding:.6em;z-index:9}.skip:focus{top:.5rem}
+.bar{background:var(--ink);color:#f8f5e9}.wrap{max-width:1260px;width:calc(100% - 104px);margin:0 auto}
+.bar>.wrap{display:flex;align-items:center;justify-content:space-between;min-height:57px;gap:12px}
+.brand,.tools,.tools a,.tools button{display:flex;align-items:center}.brand{gap:12px;font-size:14px;font-weight:700;letter-spacing:.07em}.brand svg{width:25px;height:25px}
+.tools{gap:24px}.tools a,.tools button{background:none;border:0;color:#e7eee8;text-decoration:none;cursor:pointer;font-size:13px;gap:8px;padding:7px 1px;line-height:1.5}.tools a:hover,.tools button:hover{text-decoration:underline}.tools svg{width:16px;height:16px}
+.hero{background:#f2f1e8;border-bottom:1px solid var(--line)}
+.hero-inner{display:grid;grid-template-columns:1.08fr 1fr;align-items:center;gap:35px;padding-block:38px 34px}
+.hero-copy{padding-block:8px 10px}.overline{display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;color:var(--teal);letter-spacing:.1em}.overline::before{content:"";width:25px;height:2px;background:var(--teal)}
+h1,h2,h3,h4,p,figure,ul,ol,dl,dd{margin:0}h1,h2,h3,h4{color:var(--ink);line-height:1.45}
+h1{font:650 clamp(34px,3.6vw,58px)/1.46 var(--serif);letter-spacing:-.042em;margin:14px 0 16px}h1 strong{color:var(--teal);font-weight:inherit}
+.hero-copy p{color:#3a4e50;line-height:1.95;font-size:clamp(15px,1.15vw,17px);max-width:36em}.hero-copy .start{display:inline-flex;align-items:center;gap:14px;color:var(--teal);font-size:13px;font-weight:700;text-decoration:none;margin-top:22px;border-bottom:1px solid #7da59c;padding-bottom:2px}
+.lead-figure{min-width:0;margin:0}.lead-figure svg{width:100%;height:auto;display:block}
+.read-grid{display:grid;grid-template-columns:minmax(155px,200px) minmax(0,1fr);gap:clamp(32px,5vw,78px);align-items:start;padding:43px 0 66px}
+.toc{position:sticky;top:24px;align-self:start}.toc h2{font:700 13px var(--sans);color:var(--muted);margin:3px 0 15px;letter-spacing:.08em}
+.toc ol{list-style:none;padding:0;border-left:1px solid #c6cfc6}.toc a{display:flex;align-items:baseline;gap:9px;padding:9px 0 9px 12px;margin-left:-1px;color:#4b5e60;text-decoration:none;font-size:13px;font-weight:500;border-left:2px solid transparent;line-height:1.65}.toc a span{font:12px var(--mono);color:#687c7c}.toc a[aria-current=true],.toc a:hover{border-left-color:var(--teal);color:var(--teal);background:linear-gradient(90deg,#e7eee6,transparent)}.toc .ref-link{margin-top:12px;font-size:12px}
+main{min-width:0}.lesson{border-top:1px solid var(--line);padding:40px 0 46px}.lesson:first-child{border-top:0;padding-top:0}
+.chapter{display:flex;align-items:baseline;gap:13px;margin:0 0 15px}.chapter .num{font:500 17px/1 var(--mono);letter-spacing:.015em;color:var(--teal);white-space:nowrap}.chapter .num::after{content:"";height:13px;width:1px;display:inline-block;background:#92ada5;transform:rotate(25deg);margin-left:12px;vertical-align:-1px}
+h2{font:650 clamp(23px,2.2vw,34px)/1.5 var(--serif);letter-spacing:-.032em}
+h3{font-size:20px;margin:31px 0 9px;letter-spacing:-.02em}h4{font-size:16px;margin:18px 0 6px}
+p+p,.lesson figure+p,.lesson .tablebox+p{margin-top:12px}.lesson p{max-width:57em}.intro{font-size:1.05em}.lesson strong{color:var(--ink)}
+.duo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:22px 0}
+.model{background:var(--white);border:1px solid var(--line);border-top:3px solid var(--teal);padding:16px 20px 17px;border-radius:3px}.model.surface{border-top-color:var(--rust)}
+.model-top{display:flex;align-items:center;justify-content:space-between;gap:15px}.model-top .kind{font-size:12px;font-weight:700;color:var(--teal);letter-spacing:.06em}.model.surface .kind{color:var(--rust)}.mini{width:88px;height:46px}
+.model h3{margin:5px 0 7px;font:650 24px/1.6 var(--serif)}.model p{font-size:14px;line-height:1.85}
+.note,.case{margin:18px 0 0;padding:13px 18px;background:var(--teal-faint);border-left:3px solid var(--teal);font-size:15px}.note strong:first-child,.case strong:first-child{color:var(--teal)}.case{background:var(--rust-faint);border-color:var(--rust)}.case strong:first-child{color:var(--rust)}
+.case h4,.note h4{margin-top:0}.refs-inline{font:11px var(--mono);white-space:nowrap}.refs-inline a{text-decoration:none}
+.tablebox{margin:15px 0 10px;overflow-x:auto;border-top:2px solid #8a9e96;border-bottom:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;text-align:left;font-size:14px;line-height:1.75}th,td{padding:11px 13px;border-bottom:1px solid #d9dfd6;vertical-align:top}thead{background:#eaf0e8}th{font-weight:650;color:var(--ink)}tr:last-child td,tr:last-child th{border-bottom:0}tbody th{background:#f0f2eb}
+.symtab td:first-child{font-family:Georgia,serif;font-style:italic;font-size:18px;white-space:nowrap}.eq{display:block;border-left:2px solid #adbbb1;margin:13px 0;padding:10px 12px 10px 17px;background:#f2f2ea;overflow-x:auto;max-width:100%;color:var(--ink)}
+.eq.result{border-left:3px solid var(--teal);background:#e9f1eb}.eq.area{border-left-color:var(--rust);background:#f6ece3}.eq math{margin:0 auto;min-width:max-content;font-size:1.18rem;line-height:1.5}.eq math+math{margin-top:12px}math{font-family:math,"Cambria Math","STIX Two Math",serif;font-size:1.05em}.eq-label{display:block;font:700 13px var(--sans);color:var(--teal);margin-bottom:10px}
+.steps{margin:14px 0 18px;padding-left:1.6em}.steps li{padding:3px 0 3px 4px}.steps li::marker{color:var(--teal);font-weight:bold}
+.resultline{color:var(--teal);font-weight:700}.numcol{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}.two-integrals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.two-integrals .eq{margin-top:10px}.principle{font-size:18px}
+details.lesson-detail{border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:18px 0 0;padding:0 2px}details+details.lesson-detail{margin-top:-1px}.lesson-detail summary{cursor:pointer;color:var(--teal);font-size:15px;font-weight:700;padding:12px 4px}.lesson-detail>div{padding:0 5px 15px;font-size:15px}.source-list{list-style:none;padding:0}.source-list li{padding:11px 0 11px 41px;position:relative;border-bottom:1px solid var(--line);font-size:14px}.source-list b{position:absolute;left:0;top:14px;font:13px var(--mono);color:var(--teal)}.source-list a{font-weight:650}.source-list small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+footer{border-top:1px solid var(--line);padding:18px 0 26px;color:var(--muted);font-size:13px}footer .wrap{display:flex;justify-content:space-between;gap:12px}
+@media(max-width:1060px){.wrap{width:calc(100% - 56px)}.read-grid{grid-template-columns:155px minmax(0,1fr);gap:28px}.hero-inner{gap:18px}.toc a{font-size:12px}.two-integrals{grid-template-columns:1fr}}
+@media(max-width:850px){.wrap{width:calc(100% - 42px)}.read-grid{grid-template-columns:minmax(0,1fr);gap:22px;padding-top:22px}.toc{position:static;border-bottom:1px solid var(--line);padding:0 0 13px}.toc h2{margin:0 0 8px}.toc ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:0}.toc a{padding:4px 6px}.toc .ref-link{display:none}.hero-inner{padding-block:27px}.hero-copy p{font-size:14px}.lesson{padding:30px 0 34px}.two-integrals{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){body{font-size:15px}.wrap{width:calc(100% - 32px)}.tools{gap:14px}.bar>.wrap{min-height:47px}.brand{gap:7px;font-size:12px;letter-spacing:.02em}.brand svg{width:20px}.tools a,.tools button{font-size:12px}.hero-inner{grid-template-columns:minmax(0,1fr);gap:3px;padding:25px 0 12px}.hero-copy{padding:0}.overline{font-size:11px}.hero h1{font-size:clamp(32px,7.7vw,43px);line-height:1.45;margin:9px 0}.hero-copy p{font-size:14px}.hero-copy .start{display:none}.lead-figure{max-width:430px;width:100%;justify-self:center}.lead-figure svg{max-height:220px}.read-grid{padding-top:19px}.toc ol{grid-template-columns:repeat(2,minmax(0,1fr))}.duo{grid-template-columns:minmax(0,1fr);gap:10px}.model{padding:11px 14px 14px}.model h3{margin-top:-3px}.two-integrals{grid-template-columns:minmax(0,1fr);gap:0}.chapter{gap:8px}.chapter .num{font-size:14px}.chapter .num::after{margin-left:7px}h2{font-size:24px}h3{font-size:18px}th,td{padding:8px 7px}table{font-size:13px}.eq{padding:10px 6px}.eq math{font-size:1.03rem}.resultgrid{font-size:12px}.case,.note{padding:11px 13px}.principle{font-size:16px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+@page{size:A4;margin:15mm 13mm}
+@media print{*{-webkit-print-color-adjust:exact;print-color-adjust:exact}body{font-size:10pt;line-height:1.65;background:white}.wrap{width:100%;max-width:none}.bar,.toc,.hero-copy .start,.skip,footer,.noprint{display:none!important}.hero{background:white}.hero-inner{display:grid;grid-template-columns:1.1fr 1fr;gap:10px;padding:0 0 14px}.hero h1{font-size:25pt}.hero-copy p{font-size:10pt}.lead-figure svg{max-height:53mm}.read-grid{display:block;padding:12px 0}.lesson{padding:17px 0 20px}.chapter{margin:0 0 7px}.chapter .num{font-size:12pt}h2{font-size:17pt}h3{font-size:13pt;margin-top:16px}h4{font-size:11pt}h2,h3,h4,.chapter{break-after:avoid-page}figure,.eq,.note,.case,.model,.lesson-detail,tr{break-inside:avoid-page}p{orphans:3;widows:3}.duo{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.model,.note,.case{padding:8px 10px}.model h3{font-size:15pt}.model p,.note,.case,.lesson-detail>div,.lesson-detail summary,.source-list li{font-size:9.5pt}.eq{overflow:visible}.eq math{font-size:11pt}.source-list small{font-size:9pt}.tablebox{overflow:visible}th,td{font-size:9pt;padding:4px 7px}details.lesson-detail::details-content{display:block;content-visibility:visible}details.lesson-detail>div{display:block!important}.tools{display:none}.two-integrals{display:grid;grid-template-columns:1fr 1fr}.refs-inline{font-size:8pt}}
+
+
+#calculator{--fc-paper:#faf8f2;--fc-ink:#182e38;--fc-muted:#425c61;--fc-rule:#ced8d1;--fc-teal:#086d68;--fc-rust:#ae4831;--fc-soft:#eaf2ed;color:var(--fc-ink);scroll-margin-top:24px}
+#calculator *{box-sizing:border-box}
+#calculator .fc-intro{max-width:50em;margin:0 0 1.3em}
+#calculator .fc-panel{padding:clamp(16px,3.3vw,30px);border:1px solid var(--fc-rule);border-radius:14px;background:#fffefb}
+#calculator .fc-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+#calculator .fc-field{display:flex;flex-direction:column;min-width:0;gap:5px;color:var(--fc-ink);font-size:.9rem;font-weight:650;line-height:1.5}
+#calculator .fc-inputrow{display:flex;align-items:center;min-width:0;gap:6px}
+#calculator .fc-inputrow small{font-size:.77rem;font-weight:500;color:var(--fc-muted)}
+#calculator .fc-field input{margin:0;width:100%;min-width:0;min-height:42px;font:inherit;font-size:1rem;font-weight:600;font-variant-numeric:tabular-nums;color:var(--fc-ink);border:1px solid #9aada6;background:white;padding:8px 9px;border-radius:5px;line-height:1.4;box-shadow:none}
+#calculator .fc-field input[aria-invalid="true"]{border:2px solid var(--fc-rust)}
+#calculator input:focus-visible,#calculator button:focus-visible{outline:3px solid #077c77;outline-offset:3px}
+#calculator .fc-settings{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:18px 0}
+#calculator .fc-options{border:0;padding:0;margin:0;min-width:0}
+#calculator .fc-options legend{padding:0;font-size:.9rem;font-weight:650;margin:0 0 4px}
+#calculator .fc-options label{display:inline-flex;align-items:center;font-size:.9rem;min-height:36px;gap:.35em;margin-right:1em;color:var(--fc-ink);cursor:pointer}
+#calculator .fc-options input{width:17px;height:17px;accent-color:var(--fc-teal);margin:0}
+#calculator button{cursor:pointer;font:inherit;background:#fffefb;color:var(--fc-teal);border:1px solid #a5b9b2;border-radius:5px;padding:7px 10px;min-height:36px;font-size:.82rem;font-weight:650;white-space:nowrap}
+#calculator button:hover{background:var(--fc-soft)}
+#calculator .fc-error{margin:0 0 10px;color:#923b2c;font-weight:650;font-size:.9rem}
+#calculator [hidden]{display:none!important}
+#calculator .fc-results{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#calculator .fc-result{min-width:0;padding:clamp(12px,2vw,20px);border-radius:8px;background:#eaf2ed;border-top:3px solid var(--fc-teal)}
+#calculator .fc-result:nth-child(2){background:#faf0e8;border-color:var(--fc-rust)}
+#calculator .fc-result h3{font:inherit;font-size:.96rem;font-weight:700;letter-spacing:normal;line-height:1.5;margin:0}
+#calculator .fc-number{margin:6px 0 8px;line-height:1.15;color:var(--fc-ink);font-size:clamp(1.4rem,3.3vw,2.05rem);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.025em}
+#calculator .fc-number small{font-size:.7em;font-weight:500;white-space:nowrap}
+#calculator .fc-detail{color:var(--fc-muted);line-height:1.6;font-size:.85rem;margin:0}
+#calculator .fc-results sub,#calculator .fc-results sup{line-height:0}
+#calculator .fc-charts{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(12px,3vw,32px);align-items:center;border-top:1px solid var(--fc-rule);margin:22px 0 0;padding-top:18px}
+#calculator .fc-charts figure{min-width:0;margin:0;padding:0;background:transparent;border:0;box-shadow:none}
+#calculator .fc-charts svg{display:block;width:100%;height:auto;max-width:650px;overflow:visible}
+#calculator .fc-charts svg text{font-family:inherit;fill:var(--fc-muted);font-size:14px;letter-spacing:normal}
+#calculator .fc-charts h3{font:inherit;font-weight:700;font-size:1.08rem;line-height:1.5;letter-spacing:normal;margin:0 0 7px}
+#calculator .fc-charts p{font-size:.9rem;line-height:1.75;margin:4px 0}
+#calculator .fc-legend{display:flex;gap:9px 14px;flex-wrap:wrap;font-size:.79rem;line-height:1.5;color:var(--fc-muted);margin:.3em 0 0}
+#calculator .fc-legend span{display:inline-flex;align-items:center;gap:6px}
+#calculator .fc-line{display:inline-block;width:23px;border-top:2px dashed #627477}
+#calculator .fc-line.fc-bold{border-top:3px solid var(--fc-teal)}
+#calculator .fc-sr{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:750px){#calculator .fc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#calculator .fc-charts{grid-template-columns:1fr}#calculator .fc-charts figure{max-width:570px}#calculator .fc-charts>div{grid-row:1}}
+@media(max-width:430px){#calculator .fc-results{grid-template-columns:1fr}#calculator .fc-options label{margin-right:.65em}#calculator .fc-detail{font-size:.84rem}}
+@media print{#calculator .fc-panel{padding:10pt;background:#fff}#calculator .fc-panel button{display:none}#calculator .fc-results,#calculator .fc-charts,#calculator .fc-settings,#calculator .fc-grid{break-inside:avoid}#calculator .fc-grid{grid-template-columns:repeat(4,1fr)}#calculator .fc-results{grid-template-columns:1fr 1fr}#calculator .fc-charts{grid-template-columns:1.3fr 1fr}#calculator .fc-charts>div{grid-row:auto}#calculator .fc-legend{font-size:8pt}#calculator .fc-result{print-color-adjust:exact;-webkit-print-color-adjust:exact}}
+
+
+.bendprofiles{margin:1.4rem 0;color:#182e38}
+.bendprofiles .bp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,225px),1fr));gap:12px}
+.bendprofiles .bp-panel{margin:0;border:1px solid #d6dfda;border-radius:12px;background:#fcfbf7;overflow:hidden;display:flex;flex-direction:column}
+.bendprofiles .bp-panel h3{margin:0;padding:14px 16px 0;font:700 .98rem/1.5 system-ui,sans-serif;color:#182e38}
+.bendprofiles svg{display:block;width:100%;max-width:420px;height:auto;margin:4px auto 0}
+.bendprofiles svg text{fill:#182e38;font:15px system-ui,sans-serif}
+.bendprofiles svg .bp-dim{font:italic 17px Georgia,serif}
+.bendprofiles svg .bp-rust{fill:#9b3e2b}
+.bendprofiles svg .bp-teal{fill:#086d68}
+.bendprofiles .bp-note{margin:0;padding:8px 16px 15px;color:#334e52;font-size:.86rem;line-height:1.7}
+.bendprofiles .bp-caption{margin:.55rem 0 0;color:#516267;font-size:.82rem;line-height:1.65}
+@media print{.bendprofiles .bp-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.bendprofiles .bp-panel{break-inside:avoid}}
+</style>
+<noscript><style>#print{display:none}#calculator .fc-grid,#calculator .fc-settings{display:none}</style></noscript></head><body id="top">
+<a class="skip" href="#origins">本文へ移動</a>
+<header class="bar"><div class="wrap"><div class="brand"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true" stroke="currentColor" stroke-width="1.5"><path d="M2.5 3.5c3.5-.4 6 .3 9.5 2.6 3.5-2.3 6-3 9.5-2.6v15c-3.5-.4-6 .3-9.5 2.5-3.5-2.2-6-2.9-9.5-2.5zM12 6v15"/><path d="M5.5 8.5c1.2 0 2.4.4 3.5 1m6 0c1.1-.6 2.3-1 3.5-1"/></svg>脆性材料の強度評価</div>
+<div class="tools"><a href="#calculator"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="4" y="2" width="12" height="16" rx="2"/><path d="M7 6h6M7 10h2m2 0h2m-6 4h2m2 0h2"/></svg>計算演習</a><button type="button" id="print"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5 7V2h10v5M5 14H2V7h16v7h-3"/><path d="M5 11h10v7H5z"/></svg>印刷</button></div></div></header>
+<div class="hero"><div class="wrap hero-inner"><div class="hero-copy"><div class="overline">機械設計者のための入門講義</div>
+<h1>3点曲げ破壊試験の<br><strong>有効体積と有効面積</strong></h1>
+<p>同じ形の試験片でも、焼結時の気孔から割れる場合と研削傷から割れる場合では、強度の評価に使う領域が異なります。破面を観察して欠陥の種類を見分け、設計に使う計算式を選びます。</p>
+<a class="start" href="#origins">破壊起点の見方から読む <span aria-hidden="true">↓</span></a></div>
+<figure class="lead-figure" aria-label="中央に荷重を加えた3点曲げ試験片"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 296" role="img" aria-labelledby="beamHeroTitle beamHeroDesc" style="display:block;width:100%;height:auto">
+  <title id="beamHeroTitle">矩形試験片の3点曲げ</title>
+  <desc id="beamHeroDesc">2つの支点で支持した梁の中央を上から押す。曲げによる最大引張応力はスパン中央の底面に生じる。Lは支点間距離を表す。</desc>
+  <defs>
+    <linearGradient id="beamHeroTop" x1="0" y1="1" x2="1" y2="0" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#f0f2e9"/><stop offset="1" stop-color="#c8ded3"/>
+    </linearGradient>
+    <linearGradient id="beamHeroFace" x1="0%" x2="0%" y1="0%" y2="100%">
+      <stop offset="0" stop-color="#b5d0c6"/><stop offset="1" stop-color="#d6e3d9"/>
+    </linearGradient>
+    <linearGradient id="beamHeroTension" x1="0%" x2="100%" y1="0%" y2="0%">
+      <stop stop-color="#688b80" stop-opacity="0"/><stop offset=".2" stop-color="#b97351" stop-opacity=".18"/>
+      <stop offset=".42" stop-color="#bc633b"/><stop offset=".5" stop-color="#b14f2c"/>
+      <stop offset=".58" stop-color="#bc633b"/><stop offset=".8" stop-color="#b97351" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#688b80" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="beamHeroDots" width="21" height="21" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r=".78" fill="#9daea3" opacity=".33"/></pattern>
+    <g id="beamHeroSeat" stroke="#375c55" stroke-width="1.45" stroke-linejoin="round">
+      <path d="M-16 27 0 4l16 23Z" fill="#9db7a9"/>
+      <path d="M0 4 30-22l16 20-30 29Z" fill="#789d90"/>
+      <path d="M-20 28h40m-35 3h31" stroke="#5f7c71" fill="none"/>
+      <path d="M-2-3 25-27q5-4 9 0t0 8L4 7Z" fill="#c3d1c1"/>
+      <circle cy="2" r="6.2" fill="#dce6d8"/>
+      <circle cy="2" r="1.8" fill="#648478" stroke="none"/>
+    </g>
+  </defs>
+  <rect width="520" height="296" fill="#f7f6ed"/>
+  <rect width="520" height="296" fill="url(#beamHeroDots)"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#85998e" stroke-width="1" stroke-dasharray="3 4">
+      <path d="M91 194v54M397 169v54"/>
+    </g>
+    <use href="#beamHeroSeat" transform="translate(91.2 167.2) rotate(-4.7)"/>
+    <use href="#beamHeroSeat" transform="translate(396.8 142.1) rotate(-4.7)"/>
+    <g stroke="#365e57" stroke-width="1.6">
+      <path d="M43 139 76 110 478 77 445 106Z" fill="url(#beamHeroTop)"/>
+      <path d="M445 106 478 77v28l-33 29Z" fill="#96b8aa"/>
+      <path d="M43 139 445 106v28L43 167Z" fill="url(#beamHeroFace)"/>
+    </g>
+    <path d="M43 153 445 120" stroke="#5f8179" stroke-width="1" stroke-dasharray="6 4" opacity=".82"/>
+    <path d="M91 162 397 137" stroke="url(#beamHeroTension)" stroke-width="3.8"/>
+    <path d="m244 122.5 33-29" stroke="#50796e" stroke-width="1.4" opacity=".88"/>
+    <path d="M260.5 35v59" stroke="#244a47" stroke-width="3.4"/>
+    <path d="m252.4 90.3 8.1 17.7 8.1-17.7-8.1 4.3Z" fill="#244a47"/>
+    <path d="m248.5 151.5 15.5 25.7h81" stroke="#a45737" stroke-width="1.6"/>
+    <circle cx="244" cy="150.5" r="5.8" fill="#fffbf0" stroke="#ad5632" stroke-width="1.8"/>
+    <circle cx="244" cy="150.5" r="2.6" fill="#ad5632"/>
+    <path d="M91 241 397 216" stroke="#527369" stroke-width="1.4"/>
+    <path d="m103 235.9-12 5.1 12.7 3.2m280.5-30.9L397 216l-12.1 5" stroke="#527369" stroke-width="1.4"/>
+  </g>
+  <g font-family="'Hiragino Kaku Gothic ProN','Yu Gothic','Meiryo',sans-serif" font-weight="600">
+    <text x="275" y="49" fill="#244a47" font-size="16">荷重 <tspan font-family="Georgia,serif" font-style="italic" font-size="20">F</tspan></text>
+    <text x="266" y="198" fill="#965032" font-size="15">最大引張応力</text>
+    <text x="245" y="260" text-anchor="middle" fill="#365e57" font-size="16">支点間距離 <tspan font-family="Georgia,serif" font-style="italic" font-size="20">L</tspan></text>
+  </g>
+</svg>
+</figure></div></div>
+<div class="wrap read-grid">
+<nav class="toc" aria-label="講義の目次"><h2>この講義の目次</h2><ol>
+<li><a href="#origins" aria-current="true"><span>01</span>破壊起点を見分ける</a></li><li><a href="#stress"><span>02</span>引張応力の分布を読む</a></li><li><a href="#integrals"><span>03</span>体積・面積を積分する</a></li><li><a href="#fitting"><span>04</span>試験から係数を求める</a></li><li><a href="#calculator"><span>05</span>数値例と計算演習</a></li><li><a href="#design"><span>06</span>破壊確率に換算する</a></li>
+</ol><a class="ref-link" href="#sources">参考文献・規格</a></nav>
+<main id="lesson">
+<section id="origins" class="lesson" aria-labelledby="h-origins"><div class="chapter"><span class="num">01</span><h2 id="h-origins">破壊起点から評価領域を選ぶ</h2></div>
+<p class="intro">セラミックスやガラスでは、もともと存在する微小なき裂や気孔から割れが始まることがあります。割れが始まった箇所とそこにある欠陥が<strong>破壊起点</strong>です。計算式を選ぶときは、<strong>同じ種類の欠陥が試験前の材料のどこに分布し得るか</strong>を考えます。</p>
+<div class="duo">
+<div class="model"><div class="model-top"><span class="kind">材料全体に分布する欠陥</span><svg class="mini" viewBox="0 0 88 46" aria-hidden="true"><path fill="#e0eee5" stroke="#72968a" d="M4 13l12-8h67v29l-12 8H4z"/><path fill="none" stroke="#72968a" d="M4 13h67l12-8M71 13v29"/><g fill="#327970"><circle cx="15" cy="23" r="2.6"/><circle cx="30" cy="34" r="2"/><circle cx="44" cy="22" r="3"/><circle cx="56" cy="32" r="2.4"/><circle cx="60" cy="18" r="1.6"/></g></svg></div>
+<h3>有効体積 <i>V</i><sub>eff</sub></h3><p>焼結時にできた気孔や材料中の介在物が例です。材料を小さな領域に分け、それぞれの領域にある欠陥が引張応力のもとで破壊にどれだけ寄与するかを考えます。</p></div>
+<div class="model surface"><div class="model-top"><span class="kind">特定の外表面に分布する欠陥</span><svg class="mini" viewBox="0 0 88 46" aria-hidden="true"><path fill="#f4e5d8" stroke="#b39078" d="M4 13l12-8h67v29l-12 8H4z"/><path fill="none" stroke="#b39078" d="M4 13h67l12-8M71 13v29"/><path d="M4 42h67l12-8" fill="none" stroke="#ad4930" stroke-width="2"/><path d="M19 41l2-5 2 6m15-1l3-7 2 7m15 0l3-5" fill="none" stroke="#a3432d" stroke-width="1.7"/></svg></div>
+<h3>有効面積 <i>A</i><sub>eff</sub></h3><p>研削で生じたき裂や取扱い中についた傷が例です。その加工や取扱いを受けた面のうち、曲げによって引張応力が生じる部分を評価します。</p></div></div>
+<h3>破面観察の手順</h3>
+<ol class="steps"><li>試験片に番号を付け、引張側の底面、側面、加工方向、破断位置を記録します。破断後は、対応する破片とその向きが分かるように保管します。</li>
+<li>破面全体を低倍率で観察し、き裂が進んだ向きを示す模様を起点側へたどります。候補箇所を拡大し、気孔・介在物・研削き裂などの特徴と加工履歴を照合します。</li>
+<li>試験片ごとに起点の<strong>位置</strong>と<strong>欠陥の種類</strong>を別々に記録し、複数の試験片で傾向を確認します。起点を特定できない試験片は「不明」と記録します。<sup class="refs-inline"><a href="#ref2">[2]</a> <a href="#ref3">[3]</a></sup></li></ol>
+<div class="case"><strong>底面で気孔が見つかったら？</strong>　素材の内部に散在していた気孔が、試験片の切り出しで底面に露出した場合は、材料全体に分布する欠陥の候補です。一方、底面を研削したときに生じたき裂は、その研削面に分布する欠陥です。底面の中央で曲げによる引張応力が最大になるため、どちらの欠陥もそこで破壊起点になり得ます。<sup class="refs-inline"><a href="#ref3">[3]</a></sup></div>
+<div class="tablebox"><table><thead><tr><th>観察結果・製造条件</th><th>計算に含める領域</th></tr></thead><tbody>
+<tr><td>気孔が素材全体に一様に分布</td><td>引張応力を受ける内部の体積</td></tr><tr><td>特有の研削き裂が引張側の底面だけに存在</td><td>その底面の面積</td></tr><tr><td>底面と両側面の傷が同じ強度分布に従う</td><td>底面と両側面の引張域の面積を合計</td></tr><tr><td>稜線に沿って欠けが発生、または複数種類の起点が混在</td><td>稜線に限られる欠陥には有効長さを検討。母集団が複数なら、母集団ごとに破壊への寄与を推定</td></tr></tbody></table></div>
+<p>ここでいう「面」は<strong>破壊前の外表面</strong>です。試験片が二つに割れたときに現れる断面は、起点を観察するために使います。</p>
+</section>
+
+<section id="stress" class="lesson" aria-labelledby="h-stress"><div class="chapter"><span class="num">02</span><h2 id="h-stress">3点曲げによる引張応力の分布</h2></div>
+<p>幅 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>、厚さ <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math> の矩形試験片を間隔 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math> の2点で支え、中央に下向きの荷重 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math> を加えます。上面には圧縮応力が、底面には引張応力が生じます。圧縮側と引張側の境界にあたる<strong>中立軸</strong>では、長手方向の曲げ応力はゼロです。</p>
+
+<figure class="bendprofiles" aria-label="矩形断面の積分対象と、長さ・厚さ方向の引張応力分布">
+<div class="bp-grid">
+<div class="bp-panel">
+<h3>中央断面と積分する面</h3>
+<svg viewBox="0 0 270 194" role="img" aria-labelledby="bp-cross-t bp-cross-d" xmlns="http://www.w3.org/2000/svg">
+<title id="bp-cross-t">矩形断面の引張側</title>
+<desc id="bp-cross-d">幅b、全厚さhの断面を長手方向から見る。上半分が圧縮側、下半分が引張側。赤い実線が底面、緑の太い破線が両側面の引張側半分を表す。</desc>
+<rect x="59" y="41" width="158" height="56" fill="#e6efed"/>
+<rect x="59" y="97" width="158" height="56" fill="#f6e2d4"/>
+<rect x="59" y="41" width="158" height="112" stroke="#334b50" fill="none" stroke-width="1.7"/>
+<path d="M59 22H217 M59 17V27 M217 17V27 M37 41V153 M32 41H42 M32 153H42" stroke="#516267" fill="none" stroke-width="1.3"/>
+<rect x="127" y="9" width="22" height="20" fill="#fcfbf7"/>
+<text x="138" y="25" text-anchor="middle" class="bp-dim">b</text>
+<text x="24" y="102" text-anchor="middle" class="bp-dim">h</text>
+<path d="M50 97H228" stroke="#334b50" fill="none" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="117" y="88" width="54" height="18" fill="#fcfbf7"/>
+<text x="144" y="102" text-anchor="middle">中立軸</text>
+<text x="139" y="69" text-anchor="middle" class="bp-teal">圧縮側</text>
+<text x="139" y="133" text-anchor="middle" class="bp-rust">引張側</text>
+<path d="M59 98V152 M217 98V152" stroke="#086d68" fill="none" stroke-width="5" stroke-dasharray="8 3"/>
+<path d="M59 153H217" stroke="#ae4831" stroke-width="5"/>
+<path d="M22 179H46" stroke="#ae4831" stroke-width="4"/>
+<text x="53" y="184">底面</text>
+<path d="M105 179H129" stroke="#086d68" stroke-width="4" stroke-dasharray="7 3"/>
+<text x="136" y="184">側面の引張域</text>
+</svg>
+<p class="bp-note">有効体積を求めるときは、試験片内部の引張域で積分します。有効面積を求めるときは、対象の欠陥が分布する外表面の引張域で積分します。</p>
+</div>
+<div class="bp-panel">
+<h3>底面に沿った応力分布</h3>
+<svg viewBox="0 0 270 194" role="img" aria-labelledby="bp-span-t bp-span-d" xmlns="http://www.w3.org/2000/svg">
+<title id="bp-span-t">長手方向の相対応力</title>
+<desc id="bp-span-d">横軸が長手位置、縦軸が底面の曲げ引張応力と最大引張応力の比。左右支点でゼロ、中央で1となる三角形を描く。</desc>
+<text x="28" y="25">応力比 σ/σ<tspan baseline-shift="sub" font-size="11">max</tspan></text>
+<path d="M38 147L139 49L240 147Z" fill="#f6e2d4"/>
+<path d="M38 49H139V147" stroke="#819392" fill="none" stroke-width="1.3" stroke-dasharray="4 4"/>
+<path d="M38 35V147H250" fill="none" stroke="#334b50" stroke-width="1.7"/>
+<path d="M34 49H42 M139 145V152 M240 145V152" fill="none" stroke="#334b50" stroke-width="1.5"/>
+<path d="M38 147L139 49L240 147" stroke="#ae4831" fill="none" stroke-width="3.5" stroke-linejoin="round"/>
+<circle cx="139" cy="49" r="3.8" fill="#ae4831"/>
+<text x="29" y="54" text-anchor="end">1</text>
+<text x="29" y="151" text-anchor="end">0</text>
+<text x="38" y="169" text-anchor="middle">−L/2</text>
+<text x="139" y="169" text-anchor="middle">0</text>
+<text x="240" y="169" text-anchor="middle">L/2</text>
+<text x="139" y="189" text-anchor="middle">長手位置 x</text>
+</svg>
+<p class="bp-note">支点では曲げモーメントがゼロです。底面の引張応力は支点から中央に向かって直線的に増えます。</p>
+</div>
+<div class="bp-panel">
+<h3>中立軸から底面への応力分布</h3>
+<svg viewBox="0 0 270 194" role="img" aria-labelledby="bp-depth-t bp-depth-d" xmlns="http://www.w3.org/2000/svg">
+<title id="bp-depth-t">中央断面の厚さ方向の相対応力</title>
+<desc id="bp-depth-d">縦軸は厚さ方向の位置 y で、下向きを正とする。中央断面の引張側では、最大引張応力に対する応力の比が中立軸でゼロ、底面（y = h/2）で1になる。</desc>
+<text x="24" y="26">厚さ位置 y（下向き正）</text>
+<path d="M60 51L218 148H60Z" fill="#f6e2d4"/>
+<path d="M218 51V148H60" stroke="#819392" fill="none" stroke-width="1.3" stroke-dasharray="4 4"/>
+<path d="M60 158V51H240" fill="none" stroke="#334b50" stroke-width="1.7"/>
+<path d="M218 47V55 M56 148H64" fill="none" stroke="#334b50" stroke-width="1.5"/>
+<path d="M60 51L218 148" stroke="#ae4831" fill="none" stroke-width="3.5"/>
+<circle cx="218" cy="148" r="3.8" fill="#ae4831"/>
+<text x="48" y="56" text-anchor="end">0</text>
+<text x="49" y="152" text-anchor="end">h/2</text>
+<text x="218" y="45" text-anchor="middle">1</text>
+<text x="91" y="112">引張側</text>
+<text x="139" y="184" text-anchor="middle">横軸　応力比 σ/σ<tspan baseline-shift="sub" font-size="11">max</tspan></text>
+</svg>
+<p class="bp-note">試験片の内部でも両側面でも、引張応力は中立軸から底面に向かって増えます。底面上では厚さ方向の位置は一定です。</p>
+</div>
+</div>
+<figcaption class="bp-caption">応力比の基準はスパン中央の底面に生じる最大引張応力 σ<sub>max</sub> です。支点や圧子の近くで生じる接触応力はここで扱う梁の曲げ応力には含めていません。</figcaption>
+</figure>
+
+<p>以下の式では、細長く一様な梁について、線形弾性と小たわみを仮定します。評価するのは曲げによって長手方向に生じる引張応力です。治具との接触で割れた場合、せん断破壊が生じた場合、大きな面取りや切欠きがある場合には、実際の破壊機構と応力分布を調べます。</p>
+<h3>荷重から最大引張応力を求める</h3>
+<p>各支点の反力は <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">F/2</annotation></semantics></math>、支点から中央までの距離は <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">L/2</annotation></semantics></math> なので、中央の曲げモーメントは <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>M</mi><mo>max</mo></msub><mo>=</mo><mi>F</mi><mi>L</mi><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">M_{\max}=FL/4</annotation></semantics></math> です。矩形断面の断面二次モーメント <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>I</mi><mo>=</mo><mi>b</mi><msup><mi>h</mi><mn>3</mn></msup><mi>/</mi><mn>12</mn></mrow><annotation encoding="application/x-tex">I=bh^3/12</annotation></semantics></math> と中立軸から底面までの距離 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">h/2</annotation></semantics></math> を使うと、中央の底面に生じる最大引張応力が次の式で求まります。</p>
+<div class="eq result"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mo>max</mo></msub><mo>=</mo><mfrac><mrow><msub><mi>M</mi><mo>max</mo></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mi>/</mi><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mi>I</mi></mfrac><mo>=</mo><mfrac><mrow><mn>3</mn><mi>F</mi><mi>L</mi></mrow><mrow><mn>2</mn><mi>b</mi><msup><mi>h</mi><mn>2</mn></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">\sigma_{\max}=\frac{M_{\max}(h/2)}{I}=\frac{3FL}{2bh^2}</annotation></semantics></math></div>
+<p><strong>寸法の読み方</strong>　<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math> は左右の支点中心間の距離、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math> は上下方向の厚さ、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math> は奥行き方向の幅です。荷重を N、寸法を mm で入れると、応力は N/mm²、すなわち MPa になります。</p>
+<h3>中央の底面を基準とする応力比</h3>
+<p>中央から長手方向に測った位置を <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>、中立軸から底面へ下向きに測った距離を <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math> とします。引張側では <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>L</mi><mi>/</mi><mn>2</mn><mo>≤</mo><mi>x</mi><mo>≤</mo><mi>L</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">-L/2\leq x\leq L/2</annotation></semantics></math>、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>≤</mo><mi>y</mi><mo>≤</mo><mi>h</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">0\leq y\leq h/2</annotation></semantics></math> です。曲げモーメントは中央から支点へ直線的に減り、応力は中立軸から底面へ直線的に増えます。中央の底面で応力比を1とすると、各位置の応力比は長手方向の係数と厚さ方向の係数の積で表せます。</p>
+<div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><msub><mi>σ</mi><mo>+</mo></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><msub><mi>σ</mi><mo>max</mo></msub></mfrac><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mn>2</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>x</mi><mo stretchy="true" form="postfix">|</mo></mrow></mrow><mi>L</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mfrac><mrow><mn>2</mn><mi>y</mi></mrow><mi>h</mi></mfrac></mrow><annotation encoding="application/x-tex">r(x,y)=\frac{\sigma_+(x,y)}{\sigma_{\max}}=\left(1-\frac{2|x|}{L}\right)\frac{2y}{h}</annotation></semantics></math></div>
+<p>例えば、中央と右支点の中間の底面（<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mi>L</mi><mi>/</mi><mn>4</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>y</mi><mo>=</mo><mi>h</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">x=L/4,\ y=h/2</annotation></semantics></math>）での応力比は <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">1/2</annotation></semantics></math> です。同じ長手位置で、中立軸と底面の中間（<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>h</mi><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">y=h/4</annotation></semantics></math>）に移ると、応力比は <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">1/4</annotation></semantics></math> になります。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mo>+</mo></msub><mo>=</mo><mo>max</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>σ</mi><mo>,</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\sigma_+=\max(\sigma,0)</annotation></semantics></math> と定義し、圧縮側の寄与をゼロとします。</p>
+</section>
+
+<section id="integrals" class="lesson" aria-labelledby="h-integrals"><div class="chapter"><span class="num">03</span><h2 id="h-integrals">応力比を使った有効体積と有効面積の計算</h2></div>
+<p class="intro">試験片内の引張応力は場所によって異なります。そこで、試験片の最大引張応力を材料全体に一様に加えたとき、どれだけの体積があれば元の試験片と同じ破壊確率になるかを考えます。この仮想の体積が<strong>有効体積</strong>です。表面に分布する欠陥について同じ考え方で求めた面積を<strong>有効面積</strong>と呼びます。</p>
+<p>最弱リンクモデルでは、引張を受ける小さな領域のどれか一つで割れが始まると、試験片全体が破壊すると考えます。欠陥が一様に分布し、各領域の破壊が独立に起こると仮定します。2母数ワイブル分布を用いると、各領域の破壊への寄与は、その領域にかかる引張応力の <i>m</i> 乗に比例します。ここで <i>m</i> は<strong>ワイブル係数</strong>で、同じ条件で試験した強度のばらつきを表します。<i>m</i> が大きいほど相対的なばらつきは小さく、応力が最大値に近い領域の相対的な寄与が大きくなります。</p>
+<div class="two-integrals"><div class="eq result"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub><mo>=</mo><msub><mo>∫</mo><mi>V</mi></msub><msup><mi>r</mi><mi>m</mi></msup><mspace width="0.167em"></mspace><mi mathvariant="normal">d</mi><mi>V</mi></mrow><annotation encoding="application/x-tex">V_{\mathrm{eff}}=\int_V r^m\,\mathrm{d}V</annotation></semantics></math></div><div class="eq area"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub><mo>=</mo><msub><mo>∫</mo><msub><mi>A</mi><mrow><mi mathvariant="normal">対</mi><mi mathvariant="normal">象</mi></mrow></msub></msub><msup><mi>r</mi><mi>m</mi></msup><mspace width="0.167em"></mspace><mi mathvariant="normal">d</mi><mi>A</mi></mrow><annotation encoding="application/x-tex">A_{\mathrm{eff}}=\int_{A_{\mathrm{対象}}}r^m\,\mathrm{d}A</annotation></semantics></math></div></div>
+<p>例えば <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">m=10</annotation></semantics></math> なら、応力が最大値の半分の位置での重みは <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>0.5</mn><mn>10</mn></msup><mo>=</mo><mn>0.0009766</mn></mrow><annotation encoding="application/x-tex">0.5^{10}=0.0009766</annotation></semantics></math> です。これは同じ大きさの小領域を比べたときの<strong>相対的な寄与</strong>で、試験片の破壊確率そのものとは区別します。</p>
+<h3>長さ方向と厚さ方向に共通する積分の形</h3>
+<p>応力分布は中央を境に左右対称なので、長さ方向の積分は中央から支点までの積分の2倍です。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>I</mi><mi>x</mi></msub><annotation encoding="application/x-tex">I_x</annotation></semantics></math> と <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>I</mi><mi>y</mi></msub><annotation encoding="application/x-tex">I_y</annotation></semantics></math> はそれぞれ、長さ方向と厚さ方向について応力比の <i>m</i> 乗で重みを付けた長さです。どちらの単位も mm です。</p>
+<div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>x</mi></msub><mo>=</mo><mn>2</mn><msubsup><mo>∫</mo><mn>0</mn><mrow><mi>L</mi><mi>/</mi><mn>2</mn></mrow></msubsup><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mn>2</mn><mi>x</mi></mrow><mi>L</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>m</mi></msup><mi mathvariant="normal">d</mi><mi>x</mi><mo>=</mo><mfrac><mi>L</mi><mrow><mi>m</mi><mo>+</mo><mn>1</mn></mrow></mfrac></mrow><annotation encoding="application/x-tex">I_x=2\int_0^{L/2}\left(1-\frac{2x}{L}\right)^m\mathrm{d}x=\frac{L}{m+1}</annotation></semantics></math></div>
+<div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>y</mi></msub><mo>=</mo><msubsup><mo>∫</mo><mn>0</mn><mrow><mi>h</mi><mi>/</mi><mn>2</mn></mrow></msubsup><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mn>2</mn><mi>y</mi></mrow><mi>h</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>m</mi></msup><mi mathvariant="normal">d</mi><mi>y</mi><mo>=</mo><mfrac><mi>h</mi><mrow><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mrow><annotation encoding="application/x-tex">I_y=\int_0^{h/2}\left(\frac{2y}{h}\right)^m\mathrm{d}y=\frac{h}{2(m+1)}</annotation></semantics></math></div>
+<details class="lesson-detail"><summary>積分で 1/(m+1) が現れる理由</summary><div><p>最初の式で <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>=</mo><mn>1</mn><mo>−</mo><mn>2</mn><mi>x</mi><mi>/</mi><mi>L</mi></mrow><annotation encoding="application/x-tex">u=1-2x/L</annotation></semantics></math> と置くと、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math> が 0 から <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">L/2</annotation></semantics></math> まで増える間に <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math> は 1 から 0 に減ります。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">d</mi><mi>x</mi><mo>=</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>L</mi><mi>/</mi><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mi mathvariant="normal">d</mi><mi>u</mi></mrow><annotation encoding="application/x-tex">\mathrm{d}x=-(L/2)\,\mathrm{d}u</annotation></semantics></math> を代入すると、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>x</mi></msub><mo>=</mo><mi>L</mi><msubsup><mo>∫</mo><mn>0</mn><mn>1</mn></msubsup><msup><mi>u</mi><mi>m</mi></msup><mspace width="0.167em"></mspace><mi mathvariant="normal">d</mi><mi>u</mi></mrow><annotation encoding="application/x-tex">I_x=L\int_0^1 u^m\,\mathrm{d}u</annotation></semantics></math> です。</p><p>次の式では <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>=</mo><mn>2</mn><mi>y</mi><mi>/</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">u=2y/h</annotation></semantics></math> と置きます。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">d</mi><mi>y</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mi>/</mi><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="0.167em"></mspace><mi mathvariant="normal">d</mi><mi>u</mi></mrow><annotation encoding="application/x-tex">\mathrm{d}y=(h/2)\,\mathrm{d}u</annotation></semantics></math> なので、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>I</mi><mi>y</mi></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>h</mi><mi>/</mi><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow><msubsup><mo>∫</mo><mn>0</mn><mn>1</mn></msubsup><msup><mi>u</mi><mi>m</mi></msup><mspace width="0.167em"></mspace><mi mathvariant="normal">d</mi><mi>u</mi></mrow><annotation encoding="application/x-tex">I_y=(h/2)\int_0^1 u^m\,\mathrm{d}u</annotation></semantics></math> です。どちらにも <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∫</mo><mn>0</mn><mn>1</mn></msubsup><msup><mi>u</mi><mi>m</mi></msup><mspace width="0.167em"></mspace><mi mathvariant="normal">d</mi><mi>u</mi><mo>=</mo><msubsup><mrow><mo stretchy="true" form="prefix">[</mo><msup><mi>u</mi><mrow><mi>m</mi><mo>+</mo><mn>1</mn></mrow></msup><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow><mn>0</mn><mn>1</mn></msubsup><mo>=</mo><mn>1</mn><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\int_0^1u^m\,\mathrm{d}u=[u^{m+1}/(m+1)]_0^1=1/(m+1)</annotation></semantics></math> が現れます。</p></div></details>
+<h3>長さ方向と厚さ方向の応力分布から求める有効体積</h3>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>,</mo><mi>y</mi></mrow><annotation encoding="application/x-tex">x,y</annotation></semantics></math> が同じなら、長手方向の引張応力は幅のどの位置でも同じです。有効体積は幅 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math> に長さ方向の積分 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>I</mi><mi>x</mi></msub><annotation encoding="application/x-tex">I_x</annotation></semantics></math> と引張側の厚さ方向の積分 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>I</mi><mi>y</mi></msub><annotation encoding="application/x-tex">I_y</annotation></semantics></math> を掛けて求めます。</p>
+<div class="eq result"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub><mo>=</mo><mi>b</mi><mspace width="0.167em"></mspace><msub><mi>I</mi><mi>x</mi></msub><msub><mi>I</mi><mi>y</mi></msub><mo>=</mo><mi>b</mi><mspace width="0.167em"></mspace><mfrac><mi>L</mi><mrow><mi>m</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mspace width="0.167em"></mspace><mfrac><mi>h</mi><mrow><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>b</mi><mi>h</mi><mi>L</mi></mrow><mrow><mn>2</mn><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">V_{\mathrm{eff}}=b\,I_x I_y=b\,\frac{L}{m+1}\,\frac{h}{2(m+1)}=\frac{bhL}{2(m+1)^2}</annotation></semantics></math></div>
+<p>分母に 2 があるのは、引張応力を受ける範囲が厚さの半分だからです。長さ方向と厚さ方向の積分でそれぞれ分母に <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(m+1)</annotation></semantics></math> が現れるため、その積が分母に残ります。</p>
+<h3>底面と各側面の有効面積</h3>
+<p><strong>底面</strong>ではどの位置でも <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mi>h</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">y=h/2</annotation></semantics></math> で、応力比を表す式のうち厚さ方向の係数は1です。そのため、応力比は長さ方向にだけ変化します。<strong>各側面</strong>の引張域では、長さ方向と厚さ方向（中立軸から底面まで）の両方で応力が変化します。</p>
+<div class="eq area"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mrow><mi mathvariant="normal">底</mi><mi mathvariant="normal">面</mi></mrow></msub><mo>=</mo><mi>b</mi><mspace width="0.167em"></mspace><msub><mi>I</mi><mi>x</mi></msub><mo>=</mo><mfrac><mrow><mi>b</mi><mi>L</mi></mrow><mrow><mi>m</mi><mo>+</mo><mn>1</mn></mrow></mfrac></mrow><annotation encoding="application/x-tex">A_{\mathrm{底面}}=b\,I_x=\frac{bL}{m+1}</annotation></semantics></math></div>
+<div class="eq area"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mrow><mi mathvariant="normal">側</mi><mi mathvariant="normal">面</mi><mn mathvariant="normal">1</mn><mi mathvariant="normal">枚</mi></mrow></msub><mo>=</mo><msub><mi>I</mi><mi>x</mi></msub><msub><mi>I</mi><mi>y</mi></msub><mo>=</mo><mfrac><mrow><mi>h</mi><mi>L</mi></mrow><mrow><mn>2</mn><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">A_{\mathrm{側面1枚}}=I_x I_y=\frac{hL}{2(m+1)^2}</annotation></semantics></math></div>
+<p>側面は左右合わせて2枚です。底面と両側面に<strong>同じ欠陥母集団</strong>（同じ強度分布に従う一群の欠陥）がある場合、3面の寄与を合計します。<sup class="refs-inline"><a href="#ref1">[1]</a></sup></p>
+<div class="eq area"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>A</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub><mo>=</mo><msub><mi>A</mi><mrow><mi mathvariant="normal">底</mi><mi mathvariant="normal">面</mi></mrow></msub><mo>+</mo><mn>2</mn><msub><mi>A</mi><mrow><mi mathvariant="normal">側</mi><mi mathvariant="normal">面</mi><mn mathvariant="normal">1</mn><mi mathvariant="normal">枚</mi></mrow></msub><mo>=</mo><mfrac><mrow><mi>b</mi><mi>L</mi></mrow><mrow><mi>m</mi><mo>+</mo><mn>1</mn></mrow></mfrac><mo>+</mo><mfrac><mrow><mi>h</mi><mi>L</mi></mrow><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mfrac></mrow><annotation encoding="application/x-tex">A_{\mathrm{eff}}=A_{\mathrm{底面}}+2A_{\mathrm{側面1枚}}=\frac{bL}{m+1}+\frac{hL}{(m+1)^2}</annotation></semantics></math></div>
+<p>底面だけに対象の研削傷がある場合は、第1項だけを用います。底面と側面で仕上げや研削方向が異なり、強度分布に差がある場合は、それぞれの面の強度データを使って評価します。</p>
+</section>
+
+<section id="fitting" class="lesson" aria-labelledby="h-fitting"><div class="chapter"><span class="num">04</span><h2 id="h-fitting">同一条件の強度データから求めるワイブル係数</h2></div>
+<p class="intro">有効体積や有効面積を計算する前に、ワイブル係数 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> を推定できます。使うのは<strong>寸法と負荷条件が同じ試験片群</strong>の破壊強度です。ここでは、単一の欠陥母集団が強度を支配する場合の手順を示します。</p>
+<ol class="steps"><li><strong>各試験片の破壊強度を求める。</strong> 各試験片の破壊荷重 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mi>i</mi></msub><annotation encoding="application/x-tex">F_i</annotation></semantics></math> と実測寸法から <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mi>i</mi></msub><mo>=</mo><mn>3</mn><msub><mi>F</mi><mi>i</mi></msub><msub><mi>L</mi><mi>i</mi></msub><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><msub><mi>b</mi><mi>i</mi></msub><msubsup><mi>h</mi><mi>i</mi><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\sigma_i=3F_iL_i/(2b_i h_i^2)</annotation></semantics></math> を求めます。例えば <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">b=4</annotation></semantics></math> mm、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">h=3</annotation></semantics></math> mm、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>=</mo><mn>40</mn></mrow><annotation encoding="application/x-tex">L=40</annotation></semantics></math> mm、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo>=</mo><mn>150</mn></mrow><annotation encoding="application/x-tex">F=150</annotation></semantics></math> Nなら、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mi>i</mi></msub><mo>=</mo><mn>250</mn></mrow><annotation encoding="application/x-tex">\sigma_i=250</annotation></semantics></math> MPa です。この値は試験片1本の破壊強度です。</li>
+<li><strong>破壊強度のデータに2母数ワイブル分布を当てはめる。</strong> 複数の <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\sigma_i</annotation></semantics></math> から、最尤法で形状母数 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> と試験片の尺度母数 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mrow><mi>θ</mi><mo>,</mo><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi></mrow></mrow></msub><annotation encoding="application/x-tex">\sigma_{\theta,\mathrm{test}}</annotation></semantics></math> を推定します。尺度母数はこの試験条件での累積破壊確率が約63.2%になる最大引張応力です。<sup class="refs-inline"><a href="#ref4">[4]</a></sup></li>
+<li><strong>推定した <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> を幾何式に代入する。</strong> 破面の観察結果と製造履歴から選んだモデルに従い、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>V</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub><annotation encoding="application/x-tex">V_{\mathrm{eff}}</annotation></semantics></math> または <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>A</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub><annotation encoding="application/x-tex">A_{\mathrm{eff}}</annotation></semantics></math> を計算します。次の演習では推定結果を仮に <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">m=10</annotation></semantics></math> とします。</li></ol>
+<div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mrow><mi mathvariant="normal">f</mi><mo mathvariant="normal">,</mo><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>σ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mn>1</mn><mo>−</mo><mo>exp</mo><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><mi>−</mi><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>σ</mi><msub><mi>σ</mi><mrow><mi>θ</mi><mo>,</mo><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi></mrow></mrow></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>m</mi></msup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">P_{\mathrm{f,test}}(\sigma)=1-\exp\!\left[-\left(\frac{\sigma}{\sigma_{\theta,\mathrm{test}}}\right)^m\right]</annotation></semantics></math></div><div class="note"><strong>有効体積や有効面積より先に <i>m</i> を求められる理由</strong>　試験条件が同じなら、有効体積または有効面積の影響は全試験片に共通し、試験片の尺度母数に含まれます。ワイブルプロットでは、共通の寸法や応力分布の影響は切片に、強度のばらつきが直線の傾き <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> に現れます。</div>
+<details class="lesson-detail"><summary>ワイブルプロットで傾きを確かめる</summary><div><p>単一の欠陥母集団を対象に全試験片が破壊するまで試験した場合は、全 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math> 本の破壊強度を小さい順に並べます。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math> 番目の試験片に作図用の確率 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>i</mi></msub><mo>≈</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>0.3</mn><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo>+</mo><mn>0.4</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">P_i\approx(i-0.3)/(n+0.4)</annotation></semantics></math> を割り当てます。横軸を <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>σ</mi><mi>i</mi></msub><mi>/</mi><msub><mi>σ</mi><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\ln(\sigma_i/\sigma_{\mathrm{ref}})</annotation></semantics></math>、縦軸を <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>ln</mo><mrow><mo stretchy="true" form="prefix">[</mo><mi>−</mi><mo>ln</mo><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>P</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\ln[-\ln(1-P_i)]</annotation></semantics></math> に取ると、ワイブル分布に従う点群はおおむね直線に並びます。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mrow><mi mathvariant="normal">r</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi></mrow></msub><annotation encoding="application/x-tex">\sigma_{\mathrm{ref}}</annotation></semantics></math> は全データに共通の基準応力（例えば 1 MPa）です。</p><p>直線の傾きから <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> を読み取れます。最尤法は順位から確率を割り振る手順を必要としません。実測から得た <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> や尺度母数には推定誤差があるので、試験本数と信頼区間を添えると精度が伝わります。</p></div></details>
+<p style="margin-top:15px">支点間距離や断面寸法の異なる試験片を扱う場合は、形状ごとにデータを分けるか、個々の有効体積・有効面積の違いをモデルに含めて推定します。内部欠陥と研削傷のどちらも破壊起点として見つかったときは、試験片ごとに破壊の原因を記録します。別の原因で破壊した試験片のデータも、「その強度までは対象の原因で破壊しなかった」という情報として使えます。<sup class="refs-inline"><a href="#ref4">[4]</a></sup></p>
+</section>
+
+<section class="lesson" id="calculator" aria-labelledby="fc-heading">
+
+<div class="chapter"><span class="num">05</span><h2 id="fc-heading">数値例と計算演習で見る寸法とワイブル係数の影響</h2></div>
+<p>幅4 mm、厚さ3 mm、支点間距離40 mm、ワイブル係数10の試験片を例にとります。支点間の体積は4 × 3 × 40 = 480 mm³です。このうち、引張応力が最大になるのはスパン中央の底面です。</p>
+<div class="tablebox"><table class="resultgrid"><thead><tr><th>求める量</th><th>数値を代入した式</th><th class="numcol">計算結果</th></tr></thead><tbody>
+<tr><th scope="row">有効体積</th><td>480 / (2 × 11²)</td><td class="numcol">1.983 mm³</td></tr>
+<tr><th scope="row">底面の有効面積</th><td>4 × 40 / 11</td><td class="numcol">14.545 mm²</td></tr>
+<tr><th scope="row">両側面の有効面積</th><td>3 × 40 / 11²</td><td class="numcol">0.992 mm²</td></tr>
+<tr><th scope="row">3面の有効面積</th><td>160 / 11 + 120 / 11²</td><td class="numcol">15.537 mm²</td></tr></tbody></table></div>
+<p>この例の有効体積は支点間の体積の約0.41%です。底面と両側面の傷が同じ母集団に属するなら、3面の有効面積のうち約94%を底面が占めます。</p>
+<h3>手元の寸法で計算する</h3><p class="fc-intro">同じ試験片で、内部欠陥を仮定した場合と表面欠陥を仮定した場合の計算結果を並べています。まず「底面のみ」に切り替え、どの値が変わるかを確認してください。</p>
+<div class="fc-panel">
+  <div class="fc-grid">
+    <label class="fc-field" for="fc-b"><span>幅 <i>b</i></span><span class="fc-inputrow"><input id="fc-b" type="number" min="0" step="any" inputmode="decimal" value="4" aria-label="幅 b、ミリメートル"><small>mm</small></span></label>
+    <label class="fc-field" for="fc-h"><span>厚さ <i>h</i></span><span class="fc-inputrow"><input id="fc-h" type="number" min="0" step="any" inputmode="decimal" value="3" aria-label="厚さ h、ミリメートル"><small>mm</small></span></label>
+    <label class="fc-field" for="fc-l"><span>支点間距離 <i>L</i></span><span class="fc-inputrow"><input id="fc-l" type="number" min="0" step="any" inputmode="decimal" value="40" aria-label="支点間距離 L、ミリメートル"><small>mm</small></span></label>
+    <label class="fc-field" for="fc-m"><span>ワイブル係数 <i>m</i></span><span class="fc-inputrow"><input id="fc-m" type="number" min="0" step="any" inputmode="decimal" value="10" aria-label="ワイブル係数 m"></span></label>
+  </div>
+  <div class="fc-settings">
+    <fieldset class="fc-options"><legend>同じ欠陥母集団を仮定する面</legend>
+      <label><input type="radio" name="fc-scope" value="bottom">底面のみ</label>
+      <label><input type="radio" name="fc-scope" value="all" checked>底面＋両側面</label>
+    </fieldset>
+    <button type="button" id="fc-reset">初期値に戻す</button>
+  </div>
+  <p class="fc-error" id="fc-error" role="status" hidden></p>
+  <div class="fc-results">
+    <div class="fc-result">
+      <h3>有効体積 <i>V</i><sub>eff</sub></h3>
+      <p class="fc-number"><span id="fc-v">1.983</span> <small>mm³</small></p>
+      <p class="fc-detail"><i>bhL</i> / [2(<i>m</i> + 1)²]</p>
+    </div>
+    <div class="fc-result">
+      <h3>有効面積 <i>A</i><sub>eff</sub></h3>
+      <p class="fc-number"><span id="fc-a">15.537</span> <small>mm²</small></p>
+      <p class="fc-detail">底面 <i>bL</i> / (<i>m</i> + 1) ＝ <span id="fc-bottom">14.545</span> mm²<br><span id="fc-sides-label">両側面 <i>hL</i> / (<i>m</i> + 1)² ＝ <span id="fc-sides">0.992</span> mm²</span><span id="fc-excluded" hidden>両側面は今回の評価範囲外</span></p>
+    </div>
+  </div>
+  <div class="fc-charts">
+    <figure>
+      <svg viewBox="0 0 460 194" role="img" aria-labelledby="fc-title fc-desc">
+        <title id="fc-title">試験片底面に沿った応力比と積分の重み</title>
+        <desc id="fc-desc">応力比と重みは左右の支点で0、中央で1。ワイブル係数が大きくなるほど重みは中央に集中します。</desc>
+        <g fill="none" stroke="#d1d9d1" stroke-width="1"><path d="M35 20H435 M35 83H435 M35 146H435"/><path d="M135 20V146 M235 20V146 M335 20V146" stroke-dasharray="3 5"/></g>
+        <g text-anchor="end"><text x="26" y="25">1</text><text x="26" y="88">0.5</text><text x="26" y="151">0</text></g>
+        <g text-anchor="middle"><text x="35" y="170">左支点</text><text x="135" y="170">¼ 点</text><text x="235" y="170">中央</text><text x="435" y="170">右支点</text></g>
+        <path d="M35 146L235 20L435 146" stroke="#627477" stroke-width="2.2" stroke-dasharray="6 4" fill="none"/>
+        <path id="fc-weightline" d="M35 146.00 L39 146.00 L43 146.00 L47 146.00 L51 146.00 L55 146.00 L59 146.00 L63 146.00 L67 146.00 L71 146.00 L75 146.00 L79 146.00 L83 146.00 L87 146.00 L91 146.00 L95 146.00 L99 146.00 L103 146.00 L107 146.00 L111 145.99 L115 145.99 L119 145.98 L123 145.97 L127 145.95 L131 145.92 L135 145.88 L139 145.82 L143 145.73 L147 145.62 L151 145.46 L155 145.24 L159 144.94 L163 144.55 L167 144.02 L171 143.34 L175 142.44 L179 141.28 L183 139.80 L187 137.90 L191 135.50 L195 132.47 L199 128.68 L203 123.96 L207 118.12 L211 110.91 L215 102.07 L219 91.27 L223 78.13 L227 62.23 L231 43.05 L235 20.00 L239 43.05 L243 62.23 L247 78.13 L251 91.27 L255 102.07 L259 110.91 L263 118.12 L267 123.96 L271 128.68 L275 132.47 L279 135.50 L283 137.90 L287 139.80 L291 141.28 L295 142.44 L299 143.34 L303 144.02 L307 144.55 L311 144.94 L315 145.24 L319 145.46 L323 145.62 L327 145.73 L331 145.82 L335 145.88 L339 145.92 L343 145.95 L347 145.97 L351 145.98 L355 145.99 L359 145.99 L363 146.00 L367 146.00 L371 146.00 L375 146.00 L379 146.00 L383 146.00 L387 146.00 L391 146.00 L395 146.00 L399 146.00 L403 146.00 L407 146.00 L411 146.00 L415 146.00 L419 146.00 L423 146.00 L427 146.00 L431 146.00 L435 146.00" stroke="#086d68" stroke-width="3.3" stroke-linejoin="round" fill="none"/>
+        <circle id="fc-mark" cx="135" cy="145.877" r="4.5" fill="#ae4831"/>
+      </svg>
+      <figcaption class="fc-legend"><span><i class="fc-line"></i><b style="font-weight:400;display:block">応力比 <i>r</i> = σ / σ<sub>max</sub></b></span><span><i class="fc-line fc-bold"></i><b style="font-weight:400;display:block">積分の重み <i>r</i><sup>m</sup></b></span></figcaption>
+    </figure>
+    <div>
+      <h3>中央とスパンの¼点での重みの比較</h3>
+      <p>底面に沿って左支点から中央に向かい、支点間距離の¼だけ進んだ位置では、引張応力は中央の半分です。</p>
+      <p>中央での積分の重みを100%とすると、この点の重みは <strong id="fc-ratio">0.0977%</strong> です。<i>m</i> を5、10、20と変えて比べてください。</p>
+    </div>
+  </div>
+  <p id="fc-status" class="fc-sr" aria-live="polite" aria-atomic="true"></p>
+  <noscript><p>初期値（幅4 mm、厚さ3 mm、支点間距離40 mm、ワイブル係数10、底面＋両側面）の計算例を表示しています。入力に応じて再計算するにはJavaScriptを有効にしてください。</p></noscript>
+</div>
+<script>
+(() => {
+  'use strict';
+  const panel = document.getElementById('calculator');
+  const get = (id) => panel.querySelector('#fc-' + id);
+  const inputs = ['b', 'h', 'l', 'm'].map(get);
+  const readouts = ['v', 'a', 'bottom', 'sides', 'ratio'].map(get);
+  const format = (value, digits = 3) => {
+    if (value > 0 && (value < 10 ** (-digits) || value >= 1e7)) return value.toExponential(2);
+    return value.toLocaleString('ja-JP', {maximumFractionDigits: digits});
+  };
+  function refresh() {
+    const values = inputs.map((input) => input.valueAsNumber);
+    const positive = values.every((value) => value > 0 && Number.isFinite(value));
+    inputs.forEach((input, index) => {
+      input.setAttribute('aria-invalid', String(!(values[index] > 0 && Number.isFinite(values[index]))));
+    });
+    const [width, thickness, span, modulus] = values;
+    const weightedSpan = span / (modulus + 1);
+    const effectiveVolume = width * (thickness / (2 * (modulus + 1))) * weightedSpan;
+    const bottomArea = width * weightedSpan;
+    const sideArea = thickness / (modulus + 1) * weightedSpan;
+    const sidesIncluded = panel.querySelector('input[name="fc-scope"]:checked').value === 'all';
+    const effectiveArea = bottomArea + (sidesIncluded ? sideArea : 0);
+    const computable = positive && [effectiveVolume, effectiveArea, bottomArea, sideArea].every((value) => Number.isFinite(value) && value > 0);
+    get('sides-label').hidden = !sidesIncluded;
+    get('excluded').hidden = sidesIncluded;
+    get('error').hidden = computable;
+    get('mark').style.display = computable ? '' : 'none';
+    if (!computable) {
+      get('error').textContent = positive ? '計算可能な範囲を超えています。寸法とワイブル係数を確認してください。' : '幅、厚さ、支点間距離、ワイブル係数には、いずれも0より大きい数値を入力してください。';
+      readouts.forEach((output) => {output.textContent = '—';});
+      get('weightline').setAttribute('d', '');
+      get('status').textContent = '';
+      return;
+    }
+    get('error').textContent = '';
+    get('v').textContent = format(effectiveVolume);
+    get('a').textContent = format(effectiveArea);
+    get('bottom').textContent = format(bottomArea);
+    get('sides').textContent = format(sideArea);
+    const quarterWeight = 0.5 ** modulus;
+    get('ratio').textContent = quarterWeight === 0 ? '10⁻³⁰⁰% 未満' : format(100 * quarterWeight, 4) + '%';
+    const plotPoints = [];
+    for (let index = 0; index <= 200; index++) {
+      const fraction = index / 200;
+      const stressRatio = 1 - Math.abs(2 * fraction - 1);
+      const x = 35 + 400 * fraction;
+      const y = 146 - 126 * stressRatio ** modulus;
+      plotPoints.push((index === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(2));
+    }
+    get('weightline').setAttribute('d', plotPoints.join(' '));
+    get('mark').setAttribute('cy', (146 - 126 * quarterWeight).toFixed(3));
+    get('status').textContent = '有効体積 ' + format(effectiveVolume) + ' 立方ミリメートル、有効面積 ' + format(effectiveArea) + ' 平方ミリメートル。';
+  }
+  inputs.forEach((input) => input.addEventListener('input', refresh));
+  panel.querySelectorAll('input[name="fc-scope"]').forEach((input) => input.addEventListener('change', refresh));
+  get('reset').addEventListener('click', () => {
+    inputs.forEach((input) => {input.value = input.defaultValue;});
+    panel.querySelector('input[name="fc-scope"][value="all"]').checked = true;
+    refresh();
+  });
+  refresh();
+})();
+</script>
+</section>
+
+
+<section id="design" class="lesson" aria-labelledby="h-design"><div class="chapter"><span class="num">06</span><h2 id="h-design">寸法が異なる試験片の破壊確率</h2></div>
+<p class="intro">幅・厚さ・スパンをすべて2倍にして、元の試験片と<strong>同じ最大引張応力</strong>になるように負荷します。試験片が大きくなると、高い引張応力を受ける部分の体積や表面積が増えます。そのため、所定の応力に達するまでに破壊する確率が上がります。上昇の幅は、内部欠陥と表面欠陥のどちらを仮定するかで異なります。</p>
+<h3>同じ破壊確率になる強度を比べる</h3>
+<div class="tablebox"><table><thead><tr><th>同じ <i>m</i> = 10 を仮定した計算例</th><th>有効量の倍率</th><th>同一破壊確率での強度比<br>（2倍寸法／元の寸法）</th></tr></thead><tbody><tr><th>体積に分布する欠陥</th><td>2³ = 8 倍</td><td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>8</mn><mrow><mi>−</mi><mn>1</mn><mi>/</mi><mn>10</mn></mrow></msup><mo>=</mo><mn>0.812</mn></mrow><annotation encoding="application/x-tex">8^{-1/10}=0.812</annotation></semantics></math>　約19%低下</td></tr><tr><th>表面に分布する欠陥</th><td>2² = 4 倍</td><td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>4</mn><mrow><mi>−</mi><mn>1</mn><mi>/</mi><mn>10</mn></mrow></msup><mo>=</mo><mn>0.871</mn></mrow><annotation encoding="application/x-tex">4^{-1/10}=0.871</annotation></semantics></math>　約13%低下</td></tr></tbody></table></div>
+<p>ここでは寸法による違いだけを示すため、両モデルで <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math> を同じ値にしました。実際には内部起点と表面起点でワイブル係数も尺度母数も異なり得ます。</p>
+<h3>試験片の尺度母数が分かっているとき</h3>
+<p>選んだ欠陥モデルについて、<strong>評価対象の有効量を試験片の有効量で割った値</strong>を <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math> とします。内部欠陥なら <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><msub><mi>V</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi><mo mathvariant="normal">,</mo><mi mathvariant="normal">対</mi><mi mathvariant="normal">象</mi></mrow></msub><mi>/</mi><msub><mi>V</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi><mo mathvariant="normal">,</mo><mi mathvariant="normal">試</mi><mi mathvariant="normal">験</mi><mi mathvariant="normal">片</mi></mrow></msub></mrow><annotation encoding="application/x-tex">R=V_{\mathrm{eff,対象}}/V_{\mathrm{eff,試験片}}</annotation></semantics></math>、表面欠陥なら <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><msub><mi>A</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi><mo mathvariant="normal">,</mo><mi mathvariant="normal">対</mi><mi mathvariant="normal">象</mi></mrow></msub><mi>/</mi><msub><mi>A</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi><mo mathvariant="normal">,</mo><mi mathvariant="normal">試</mi><mi mathvariant="normal">験</mi><mi mathvariant="normal">片</mi></mrow></msub></mrow><annotation encoding="application/x-tex">R=A_{\mathrm{eff,対象}}/A_{\mathrm{eff,試験片}}</annotation></semantics></math> です。温度・負荷速度・環境、欠陥母集団、評価する応力の基準がそろうことが前提です。<sup class="refs-inline"><a href="#ref1">[1]</a> <a href="#ref5">[5]</a></sup></p>
+<div class="eq result"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi mathvariant="normal">f</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><mo>exp</mo><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">[</mo><mi>−</mi><mi>R</mi><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>σ</mi><mrow><mo>max</mo><mo>,</mo><mrow><mi mathvariant="normal">対</mi><mi mathvariant="normal">象</mi></mrow></mrow></msub><msub><mi>σ</mi><mrow><mi>θ</mi><mo>,</mo><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi></mrow></mrow></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>m</mi></msup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">P_{\mathrm f}=1-\exp\!\left[-R\left(\frac{\sigma_{\max,\mathrm{対象}}}{\sigma_{\theta,\mathrm{test}}}\right)^m\right]</annotation></semantics></math></div>
+<p>たとえば、元の試験片の特性強度を 300 MPa、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">m=10</annotation></semantics></math> と仮定します。最大引張応力が 240 MPa に達するまでに破壊する確率は、元の試験片（<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R=1</annotation></semantics></math>）で約10.2%です。全寸法を2倍にして同じ240 MPaで比べると、予測される破壊確率は体積モデル（<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">R=8</annotation></semantics></math>）で約57.6%、表面モデル（<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">R=4</annotation></semantics></math>）で約34.9%です。これらの値は、仮定した欠陥母集団についての計算結果です。</p>
+<div class="note"><strong>二重補正を防ぐ確認</strong>　元の試験片を評価対象にすると <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R=1</annotation></semantics></math> です。さらに <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mo>max</mo></msub><mo>=</mo><msub><mi>σ</mi><mrow><mi>θ</mi><mo>,</mo><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">s</mi><mi mathvariant="normal">t</mi></mrow></mrow></msub></mrow><annotation encoding="application/x-tex">\sigma_{\max}=\sigma_{\theta,\mathrm{test}}</annotation></semantics></math> を代入すると、元の試験条件での破壊確率 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi mathvariant="normal">f</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mi>−</mi><mn>1</mn></mrow></msup><mo>≈</mo><mn>63.2</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">P_{\mathrm f}=1-e^{-1}\approx63.2\%</annotation></semantics></math> が得られます。<i>V</i><sub>eff</sub> と <i>A</i><sub>eff</sub> は単位が異なるため、数値の大小を比べても、どの欠陥が破壊を支配するかは判定できません。</div>
+<details class="lesson-detail"><summary>基準体積・基準面積の尺度母数を使う表記</summary><div><p>基準体積 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>V</mi><mn>0</mn></msub><annotation encoding="application/x-tex">V_0</annotation></semantics></math> を一様に引っ張ったときの特性強度を <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mrow><mn>0</mn><mo>,</mo><mi>V</mi></mrow></msub><annotation encoding="application/x-tex">\sigma_{0,V}</annotation></semantics></math>、基準面積 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>A</mi><mn>0</mn></msub><annotation encoding="application/x-tex">A_0</annotation></semantics></math> を一様に引っ張ったときの特性強度を <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mrow><mn>0</mn><mo>,</mo><mi>A</mi></mrow></msub><annotation encoding="application/x-tex">\sigma_{0,A}</annotation></semantics></math> とします。破壊の原因を一つだけ考えたときの破壊確率は <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi mathvariant="normal">f</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><msup><mi>e</mi><mrow><mi>−</mi><mi>H</mi></mrow></msup></mrow><annotation encoding="application/x-tex">P_{\mathrm f}=1-e^{-H}</annotation></semantics></math> です。無次元量 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math> は累積ハザードで、各微小領域が試験片の破壊にどれだけ寄与するかを足し合わせた値です。</p><div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>V</mi></msub><mo>=</mo><mfrac><msub><mi>V</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub><msub><mi>V</mi><mn>0</mn></msub></mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>σ</mi><mo>max</mo></msub><msub><mi>σ</mi><mrow><mn>0</mn><mo>,</mo><mi>V</mi></mrow></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>m</mi><mi>V</mi></msub></msup></mrow><annotation encoding="application/x-tex">H_V=\frac{V_{\mathrm{eff}}}{V_0}\left(\frac{\sigma_{\max}}{\sigma_{0,V}}\right)^{m_V}</annotation></semantics></math></div><div class="eq"><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mi>A</mi></msub><mo>=</mo><mfrac><msub><mi>A</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub><msub><mi>A</mi><mn>0</mn></msub></mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>σ</mi><mo>max</mo></msub><msub><mi>σ</mi><mrow><mn>0</mn><mo>,</mo><mi>A</mi></mrow></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>m</mi><mi>A</mi></msub></msup></mrow><annotation encoding="application/x-tex">H_A=\frac{A_{\mathrm{eff}}}{A_0}\left(\frac{\sigma_{\max}}{\sigma_{0,A}}\right)^{m_A}</annotation></semantics></math></div><p>体積と面積の計算には、それぞれのワイブル係数 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>m</mi><mi>V</mi></msub><mo>,</mo><msub><mi>m</mi><mi>A</mi></msub></mrow><annotation encoding="application/x-tex">m_V,m_A</annotation></semantics></math> を使います。独立な二つの欠陥母集団が競合するとき、どちらの原因でも試験片が破壊しない確率は、原因ごとに求めた生存確率の積です。したがって、試験片全体の破壊確率は <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mo>exp</mo><mrow><mo stretchy="true" form="prefix">[</mo><mi>−</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>H</mi><mi>V</mi></msub><mo>+</mo><msub><mi>H</mi><mi>A</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">1-\exp[-(H_V+H_A)]</annotation></semantics></math> です。各原因の母数は対応するデータから別々に推定します。</p></div></details>
+<details class="lesson-detail"><summary>計算演習の答え合わせ</summary><div><p><strong>評価する面を切り替えた場合。</strong> 初期寸法のまま「底面のみ」にすると、<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>A</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub><annotation encoding="application/x-tex">A_{\mathrm{eff}}</annotation></semantics></math> は 15.537 から 14.545 mm² になります。差の 0.992 mm² が左右側面の寄与です。<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>V</mi><mrow><mi mathvariant="normal">e</mi><mi mathvariant="normal">f</mi><mi mathvariant="normal">f</mi></mrow></msub><annotation encoding="application/x-tex">V_{\mathrm{eff}}</annotation></semantics></math> は引張側の内部を積分するため 1.983 mm³ のままです。</p><p><strong>スパンだけを2倍にした場合。</strong> <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>,</mo><mi>h</mi><mo>,</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">b,h,m</annotation></semantics></math> を固定すると、どちらの有効量も2倍になります。したがって、同じ断面の試験片でスパンだけを変えて測った強度比からは、体積欠陥と表面欠陥を判別できません。どちらの欠陥が起点かを調べるには、破面の観察が役立ちます。<sup class="refs-inline"><a href="#ref1">[1]</a></sup></p></div></details>
+</section>
+
+<section id="sources" class="lesson" aria-labelledby="h-sources"><div class="chapter"><h2 id="h-sources">参考文献・規格</h2></div>
+<ul class="source-list">
+<li id="ref1"><b>[1]</b><a href="https://www.nist.gov/publications/weibull-strength-scaling-standardized-rectangular-flexure-specimens">G. D. Quinn, Weibull Strength Scaling for Standardized Rectangular Flexure Specimens</a><small>J. Am. Ceram. Soc. 86 (2003), 508–510. Table I に矩形梁の有効体積・有効表面積がまとまっています。DOI 10.1111/j.1151-2916.2003.tb03329.x</small></li>
+<li id="ref2"><b>[2]</b><a href="https://www.nist.gov/publications/nist-recommended-practice-guide-fractography-ceramics-and-glasses-4th-edition">G. D. Quinn, Fractography of Ceramics and Glasses, 4th ed.</a><small>NIST SP 960-16e4（2026）。実際の破面写真を見ながらき裂の進展方向と破壊起点を学べる公開ガイドです。</small></li>
+<li id="ref3"><b>[3]</b><a href="https://store.astm.org/c1322-25.html">ASTM C1322-25　ファインセラミックスの破面観察と起点の分類</a><small>特に §5.9 で、起点が見つかった位置と、その欠陥が材料にどう分布するかの違いを扱います。</small></li>
+<li id="ref4"><b>[4]</b><a href="https://store.astm.org/standards/c1239">ASTM C1239　ワイブル分布の母数推定と強度データの報告</a><small>最尤推定、試験片の特性強度、異なる破壊起点が競合する場合のデータの扱いを確認できます。</small></li>
+<li id="ref5"><b>[5]</b><a href="https://store.astm.org/c1683-10r24.html">ASTM C1683-10(2024)　ワイブル統計による強度の寸法換算</a><small>ファインセラミックスにおける体積・面積に基づく強度換算と、その適用条件を扱います。</small></li>
+</ul></section></main></div>
+<footer><div class="wrap"><span>3点曲げ破壊試験の有効体積と有効面積</span><a href="#top">先頭へ ↑</a></div></footer>
+<script>
+const printControl=document.getElementById('print');
+printControl.addEventListener('click',()=>window.print());
+let closedDetails=[];
+window.addEventListener('beforeprint',()=>{
+  closedDetails=Array.from(document.querySelectorAll('details:not([open])'));
+  closedDetails.forEach(item=>{item.open=true});
+});
+window.addEventListener('afterprint',()=>{closedDetails.forEach(item=>{item.open=false});closedDetails=[]});
+const links=Array.from(document.querySelectorAll('.toc a[href^="#"]'));
+const targets=links.map(link=>document.querySelector(link.hash));
+let scheduled=false;
+function updateLocation(){
+  let active=0;
+  targets.forEach((section,i)=>{if(section.getBoundingClientRect().top<window.innerHeight*.33)active=i});
+  links.forEach((link,i)=>{if(i===active)link.setAttribute('aria-current','true');else link.removeAttribute('aria-current')});
+  scheduled=false;
+}
+window.addEventListener('scroll',()=>{if(!scheduled){scheduled=true;requestAnimationFrame(updateLocation)}},{passive:true});
+updateLocation();
+</script>
+</body></html>
